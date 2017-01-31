@@ -25,18 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         interface.cpp \
-    firebird.cpp \
     login.cpp \
     mismatch.cpp \
     vkpost.cpp \
-    ../qt-json/json.cpp
+    ../qt-json/json.cpp \
+    ../ibpp/tests/C++/firebird.cpp \
+    vkapi.cpp
 
 HEADERS  += interface.h \
-    firebird.h \
     login.h \
     mismatch.h \
     vkpost.h \
-    ../qt-json/json.h
+    ../qt-json/json.h \
+    ../ibpp/tests/C++/firebird.h \
+    vkapi.h
 
 FORMS    += interface.ui \
     login.ui \

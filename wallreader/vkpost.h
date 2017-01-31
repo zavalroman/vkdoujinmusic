@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-
+#include "../ibpp/tests/C++/firebird.h"
 
 class Vkpost
 {
@@ -53,6 +53,7 @@ public:
     void addNewTrack();
 
 private:
+    Firebird* fb;
 
 
 };

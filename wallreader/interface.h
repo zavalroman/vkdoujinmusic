@@ -5,7 +5,6 @@
 #include <QtNetwork/QNetworkReply>
 
 #include "vkpost.h"
-#include "firebird.h"
 #include "../qt-json/json.h"
 
 namespace Ui {
