@@ -1,0 +1,6 @@
+[submodule "ibpp"]
+	path = ibpp
+	url = https://github.com/zavalroman/ibpp.git
+[submodule "qt-json"]
+	path = qt-json
+	url = https://github.com/qt-json/qt-json.git
