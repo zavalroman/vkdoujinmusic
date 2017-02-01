@@ -64,8 +64,7 @@ void VkApi::vkReplyParse()
 
 void VkApi::jsonToVkpost(const JsonObject &result)
 {
-    //playList.clear();
-
+    Vkpost* vkpost;
     /*
         qDebug() << "head begin";
         QList<QString> keys = head.keys();
@@ -84,7 +83,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
     JsonArray items = jsonObject["items"].toList();
 
     if (items.size() == 0) {
-        qDebug() << "vk reply has no items. finish";
+        qDebug() << "ERROR: vk reply has no items. return";
         scanStop = true;
         return;
     }
@@ -178,19 +177,15 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         if (vkpost->poll_post && vkpost->audio_post)
             qDebug() << "WARNING: Post" << vkpost->id << "has poll and audio!(это норма!)";
 
-        vkposts.push_back(vkpost);
+         emit vkPostReceived(vkpost);
     }
-
-    //playModel->setStringList(playList);
-    //ui->listView->setModel(playModel);
-
     gottenCount = vkposts.size();
     //qDebug() << "gotten:" << gottenCount;
-    for (int i = 0; i < gottenCount; i++)
-        vkpostToDb(i);
+    //for (int i = 0; i < gottenCount; i++)
+        //vkpostToDb(i);
 
-    for (int i = 0; i < vkposts.size(); i++)
-        delete vkposts.at(i);
+    //for (int i = 0; i < vkposts.size(); i++)
+        //delete vkposts.at(i);
 
-    vkposts.clear();
+    //vkposts.clear();
 }
