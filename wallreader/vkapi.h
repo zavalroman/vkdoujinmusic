@@ -28,6 +28,7 @@ public:
 
 signals:
     void vkPostReceived(Vkpost*);
+
 public slots:
 
 private slots:

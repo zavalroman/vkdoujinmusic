@@ -177,7 +177,8 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         if (vkpost->poll_post && vkpost->audio_post)
             qDebug() << "WARNING: Post" << vkpost->id << "has poll and audio!(это норма!)";
 
-         emit vkPostReceived(vkpost);
+        emit vkPostReceived(vkpost);
+        delete vkpost;
     }
     gottenCount = vkposts.size();
     //qDebug() << "gotten:" << gottenCount;

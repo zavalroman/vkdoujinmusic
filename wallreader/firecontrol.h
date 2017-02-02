@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "../ibpp/tests/C++/firebird.h"
+#include "vkpost.h"
 
 class Firecontrol : public QObject
 {
@@ -18,9 +19,11 @@ public:
 signals:
 
 public slots:
-
+    void vkpostToDb(Vkpost*);
 private:
     Firebird* fb;
+
+    void textPrepare(QString& text);
 };
 
 #endif // FIRECONTROL_H
