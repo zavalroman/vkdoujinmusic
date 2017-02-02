@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     vkpost.cpp \
     ../qt-json/json.cpp \
     ../ibpp/tests/C++/firebird.cpp \
-    vkapi.cpp
+    vkapi.cpp \
+    firecontrol.cpp
 
 HEADERS  += interface.h \
     login.h \
@@ -38,7 +39,8 @@ HEADERS  += interface.h \
     vkpost.h \
     ../qt-json/json.h \
     ../ibpp/tests/C++/firebird.h \
-    vkapi.h
+    vkapi.h \
+    firecontrol.h
 
 FORMS    += interface.ui \
     login.ui \
