@@ -5,11 +5,25 @@
 #include <QEventLoop>
 #include <QTimer>
 
+#include "login.h"
+#include "vkapi.h"
+
 Interface::Interface(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Interface)
 {
     ui->setupUi(this);
+
+    QFile cache;
+    cache.setFileName("cache");
+    if (cache.exists()) {
+        if(cache.open(QIODevice::ReadOnly)) {
+            token = cache.readLine();
+            authorized = true;
+            cache.close();
+            //qDebug() << "token from file:" << token;
+        }
+    }
 }
 
 Interface::~Interface()
@@ -30,25 +44,35 @@ void Interface::on_requestButton_clicked()
     QString cycles = ui->lineCycle->text();
     QString offset = ui->lineOffset->text();
     QString count = ui->lineCount->text();
+    QString ownerId = ui->lineOwnerId->text();
+    QString domain = ui->lineDomain->text();
 
-    scanStop = false;
-    replyParsed = true;
-    for (int i = 0; i < cycles.toInt(); i++) {
-        if (scanStop)
-            return;
+    VkApi vk;
+    vk.setToken(token);
+    vk.setSourceId(ownerId, domain);
+    vk.wallGet(cycles, offset, count);
+    qDebug() << "sovcim finish";
+}
 
-        while (!replyParsed)
-            delay(100);
+void Interface::on_actionLogin_triggered()
+{
+    Login loginDialog;
+    //if (!authorized)
+    loginDialog.exec();
 
-        replyParsed = false;
-
-        QUrl vkRequest("https://api.vk.com/method/wall.get?owner_id=" + ui->lineOwnerId->text() + "&domain=" + ui->lineDomain->text() + "&offset=" + offset + "&count=" +count + "&filter=" + ui->lineFilter->text() + "&extended=0&v=5.52&access_token=" + token);
-        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-        vkReply = manager->get(QNetworkRequest(vkRequest));
-        connect(vkReply, SIGNAL(finished()), this, SLOT(vkReplyParse()));
-
-        delay(2000);
-
-        offset = QString::number(offset.toInt() + count.toInt());
+    if (loginDialog.authorized) {
+        authorized = loginDialog.authorized;
+        user_id = loginDialog.user_id;
+        token = loginDialog.token;
+        QFile cache("cache");
+        if(cache.open(QIODevice::WriteOnly)) {
+            QTextStream writeStream(&cache);
+            writeStream << token;
+            cache.close();
+        }
+        qDebug() << "login ok";
+    } else {
+        qDebug() << "login ne ok";
     }
+
 }

@@ -2,27 +2,27 @@
 #include "ui_login.h"
 #include <QDebug>
 
-login::login(QWidget *parent) :
+Login::Login(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::login)
+    ui(new Ui::Login)
 {
     ui->setupUi(this);
     ui->webView->load(QUrl("https://oauth.vk.com/authorize?client_id=5534287&scope=audio&redirect_uri=https://oauth.vk.com/blank.html&display=popup&v=5.52&response_type=token"));
 
 }
 
-login::~login()
+Login::~Login()
 {
     delete ui;
 }
 
-void login::on_webView_loadProgress(int progress)
+void Login::on_webView_loadProgress(int progress)
 {
     ui->progressBar->setValue(progress);
 }
 
 
-void login::on_webView_urlChanged(const QUrl &arg1)
+void Login::on_webView_urlChanged(const QUrl &arg1)
 {
     QStringList urlSplitList = arg1.toString().split("#");
 

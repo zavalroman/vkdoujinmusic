@@ -18,3 +18,8 @@ void Vkpost::addNewTrack()
 {
     tracks.push_back(track);
 }
+
+void Vkpost::addNewDoc()
+{
+    docs.push_back(doc);
+}

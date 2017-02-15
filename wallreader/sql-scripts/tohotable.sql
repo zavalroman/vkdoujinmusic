@@ -1,4 +1,4 @@
-
+/*
 CREATE TABLE vkgroup
 (
 	id INTEGER,
@@ -8,6 +8,7 @@ CREATE TABLE vkgroup
 	
 	PRIMARY KEY ( id )	
 );
+*/
 
 CREATE TABLE vkpost
 (
@@ -22,9 +23,9 @@ CREATE TABLE vkpost
 	
 	photo_count SMALLINT,
 	audio_count SMALLINT,
-	poll CHAR(1),
+	--poll CHAR(1),
 	
-	FOREIGN KEY ( vkgroup_id ) REFERENCES vkgroup ( id ),
+	--FOREIGN KEY ( vkgroup_id ) REFERENCES vkgroup ( id ),
 	PRIMARY KEY ( id )
 );
 
@@ -32,30 +33,22 @@ CREATE TABLE vktrack
 (
 	id INTEGER,
 	vk_id VARCHAR(50),
-	from_id VARCHAR(50),
+	--from_id VARCHAR(50),
 	to_id VARCHAR(50), --owner_id
 	artist VARCHAR(100),
 	title VARCHAR(100),
 	duration INTEGER,
-	unix_time DECIMAL, --iru ka
+	--unix_time DECIMAL, --iru ka
 	--url VARCHAR(100),
-	lyrics_id VARCHAR(50),
-	vkalbum_id INTEGER,
-	vkgenre_id INTEGER,
-	--have to create new table to clip post and tracks
+	--lyrics_id VARCHAR(50),
+	--vkalbum_id INTEGER,
+	--vkgenre_id INTEGER,
+	vkpost_id INTEGER,
+
+	FOREIGN KEY ( vkpost_id ) REFERENCES  vkpost ( id ),
 	PRIMARY KEY ( id )
 );
 
-CREATE TABLE vkpostXvktrack
-(
-	id INTEGER,
-	vkpost_id INTEGER,
-	vktrack_id INTEGER,
-	
-	FOREIGN KEY ( vkpost_id ) REFERENCES  vkpost ( id ),
-	FOREIGN KEY ( vktrack_id ) REFERENCES vktrack ( id ),
-	PRIMARY KEY ( id )
-);
 /*
 CREATE TABLE translit
 (
@@ -68,6 +61,7 @@ CREATE TABLE translit
 	PRIMARY KEY ( id )
 );
 */
+/*
 CREATE TABLE translate
 (
 	id INTEGER,
@@ -78,7 +72,8 @@ CREATE TABLE translate
 	
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE link
 (
 	id INTEGER,
@@ -101,7 +96,8 @@ CREATE TABLE link
 	
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE eventtype
 (
 	id INTEGER,
@@ -111,7 +107,8 @@ CREATE TABLE eventtype
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE event
 (
 	id INTEGER,
@@ -124,7 +121,7 @@ CREATE TABLE event
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
 CREATE TABLE circle
 (
 	id INTEGER,
@@ -154,11 +151,11 @@ CREATE TABLE album
 	
 	--FOREIGN KEY ( title_id ) REFERENCES translit ( id ),
 	FOREIGN KEY ( circle_id ) REFERENCES circle ( id ),
-	FOREIGN KEY ( event_id ) REFERENCES event ( id ),
-	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
+	--FOREIGN KEY ( event_id ) REFERENCES event ( id ),
+	--FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+/*
 CREATE TABLE albumXcircle
 ( --use for multi-circle albums only
 	id INTEGER,
@@ -169,7 +166,8 @@ CREATE TABLE albumXcircle
 	FOREIGN KEY ( circle_id ) REFERENCES circle ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE people
 (
 	id INTEGER,
@@ -184,7 +182,8 @@ CREATE TABLE people
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE fandom
 (
 	id INTEGER,
@@ -193,7 +192,8 @@ CREATE TABLE fandom
 	
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE lyric
 (
 	id INTEGER,
@@ -204,7 +204,8 @@ CREATE TABLE lyric
 	
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE poetry
 (
 	id INTEGER,
@@ -215,7 +216,8 @@ CREATE TABLE poetry
 	FOREIGN KEY ( poet_id ) REFERENCES people ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE sourcetype
 (
 	id INTEGER,
@@ -223,7 +225,8 @@ CREATE TABLE sourcetype
 	
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE source
 (
 	id INTEGER,
@@ -242,6 +245,7 @@ CREATE TABLE source
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )	
 );
+*/
 
 CREATE TABLE track
 (
@@ -265,6 +269,7 @@ CREATE TABLE track
 	PRIMARY KEY ( id )
 );
 
+/*
 CREATE TABLE inheritance
 (
 	id INTEGER,
@@ -277,7 +282,8 @@ CREATE TABLE inheritance
 	FOREIGN KEY ( source_id ) REFERENCES source ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE vocal
 (
 	id INTEGER,
@@ -288,7 +294,8 @@ CREATE TABLE vocal
 	FOREIGN KEY ( singer_id ) REFERENCES people ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE arrangment
 (
 	id INTEGER,
@@ -299,7 +306,8 @@ CREATE TABLE arrangment
 	FOREIGN KEY ( musician_id ) REFERENCES people ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE composition
 (
 	id INTEGER,
@@ -310,6 +318,7 @@ CREATE TABLE composition
 	FOREIGN KEY ( composer_id ) REFERENCES people ( id ),
 	PRIMARY KEY ( id )
 );
+*/
 /*
 CREATE TABLE vktrackXtrack
 (
@@ -322,6 +331,7 @@ CREATE TABLE vktrackXtrack
 	PRIMARY KEY ( id )
 );
 */
+/*
 CREATE TABLE musicvideo
 (
 	id INTEGER,
@@ -332,7 +342,8 @@ CREATE TABLE musicvideo
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE genre
 (
 	id INTEGER,
@@ -342,7 +353,8 @@ CREATE TABLE genre
 	FOREIGN KEY ( link_id ) REFERENCES link ( id ),
 	PRIMARY KEY ( id )
 );
-
+*/
+/*
 CREATE TABLE trackgenre
 (
 	id INTEGER,
@@ -353,7 +365,8 @@ CREATE TABLE trackgenre
 	FOREIGN KEY ( genre_id ) REFERENCES genre ( id ),
 	PRIMARY KEY ( id )	
 );
-
+*/
+/*
 CREATE TABLE trackosu
 (
 	osu_beatmap_set INTEGER,
@@ -362,7 +375,7 @@ CREATE TABLE trackosu
 	FOREIGN KEY ( track_id ) REFERENCES track ( id ),
 	PRIMARY KEY ( osu_beatmap_set )
 );
-
+*/
 CREATE TABLE vkphoto
 (
 	id INTEGER,

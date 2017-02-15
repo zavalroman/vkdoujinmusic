@@ -2,7 +2,7 @@
 #include <QNetworkReply>
 #include "mismatch.h"
 #include "ui_mismatch.h"
-#include "firebird.h"
+#include "../ibpp/tests/C++/qt-firebird.h"
 
 Mismatch::  Mismatch(QWidget *parent, Firebird *firebird, const QString &post_text, int id) :
     QDialog(parent),

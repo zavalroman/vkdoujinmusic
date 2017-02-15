@@ -24,25 +24,38 @@ public:
         token = token_;
     }
     void delay(int msec) const;
-    void wallGet(QString& cycles, QString& offset, QString& amount, QString& filter);
+    void wallGet(QString& cycles, QString& offset, QString& count);
 
 signals:
+
     void vkPostReceived(Vkpost*);
+    //void replyParsed();
 
 public slots:
 
 private slots:
-    void vkReplyParse();
 
 private:
+    struct Audio { // for comment's attachment audios
+        QString id, owner_id, artist, title;
+        int duration;
+    } audio;
+
     bool scanStop, replyParsed;
+    bool commentAudioComplete;
 
     QString ownerId, domain, token;
-    QNetworkReply* vkReply;
-    JsonArray jsonTracks;
+    //QNetworkReply* response;
+    JsonObject jsonResponse;
+    JsonArray jsonTracks; // ?
     int gottenCount;
 
+    QList<Audio> audios;
+
     void jsonToVkpost(const JsonObject &result);
+    void jsonToComment(const JsonObject &result);
+    void getComments(QString& postId, QString offset, QString count);
+    void execute(QString parameters);
 };
 
 #endif // VKAPI_H

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "../ibpp/tests/C++/firebird.h"
+#include "../ibpp/tests/C++/qt-firebird.h"
 #include "vkpost.h"
 
 class Firecontrol : public QObject
@@ -20,6 +20,7 @@ signals:
 
 public slots:
     void vkpostToDb(Vkpost*);
+
 private:
     Firebird* fb;
 

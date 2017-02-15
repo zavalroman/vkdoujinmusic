@@ -6,7 +6,8 @@
 
 VkApi::VkApi(QObject *parent) : QObject(parent)
 {
-
+    ownerId = "";
+    domain = "";
 }
 
 void VkApi::delay(int msec) const
@@ -17,54 +18,62 @@ void VkApi::delay(int msec) const
     loop.exec();
 }
 
+void VkApi::execute(QString parameters) {
+    qDebug() << parameters;
+    QUrl vkRequest("https://api.vk.com/method/" + parameters);
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkReply* reply = manager->get(QNetworkRequest(vkRequest));
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    qDebug() << "during response";
+    loop.exec();
 
-void VkApi::wallGet(QString& cycles, QString& offset, QString& amount, QString& filter)
+    bool ok;
+    //qDebug() << QString(reply->readAll());
+    jsonResponse = QtJson::parse(QString(reply->readAll()),ok).toMap();
+    if (!ok) {
+        qDebug() << "ERROR: reply not parsed";
+    } else {
+        qDebug() << "reply parsed";
+        replyParsed = true;
+    }
+}
+
+void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
 {
     scanStop = false;
     replyParsed = true;
     for (int i = 0; i < cycles.toInt(); i++) {
-        if (scanStop)
+        if (scanStop) // ?
             return;
 
+        replyParsed = false;
+        execute("wall.get?owner_id="+ownerId+"&domain="+domain+"&offset="+offset+"&count="+count+"&filter=all&extended=0&v=5.52&access_token="+token);
         while (!replyParsed)
             delay(100);
 
-        replyParsed = false;
-
-        QUrl vkRequest("https://api.vk.com/method/wall.get?owner_id="+ownerId+"&domain="+domain+"&offset="+offset+"&count="+amount+"&filter="+filter+"&extended=0&v=5.52&access_token="+token);
-        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-        vkReply = manager->get(QNetworkRequest(vkRequest));
-        connect(vkReply, SIGNAL(finished()), this, SLOT(vkReplyParse()));
-
+        jsonToVkpost(jsonResponse);
         delay(2000);
 
         offset = QString::number(offset.toInt() + count.toInt());
+        qDebug() << cycles << i;
     }
+    qDebug() << "finish";
 }
 
-void VkApi::vkReplyParse()
-{/*
-    if (error)
-    {
-        qDebug() << "error while get";
-        return;
-    }
-*/
-    qDebug() << "start parse";
-    bool ok;
-    //qDebug() << QString(vkReply->readAll());
-    JsonObject result = QtJson::parse(QString(vkReply->readAll()),ok).toMap();
-    if (!ok) {
-        qDebug() << "An error occurred during parsing";
-    } else {
-        jsonToVkpost(result);
-    }
-    replyParsed = true;
+void VkApi::getComments(QString& postId, QString offset, QString count)
+{
+    replyParsed = false;
+    execute("wall.getComments?owner_id="+ownerId+"&post_id="+postId+"&need_likes=0&offset="+offset+"&count="+count+"&v=5.62&access_token="+token);
+    while (!replyParsed)
+        delay(100);
+    jsonToComment(jsonResponse);
 }
 
 void VkApi::jsonToVkpost(const JsonObject &result)
 {
     Vkpost* vkpost;
+    qDebug() << "head begin";
     /*
         qDebug() << "head begin";
         QList<QString> keys = head.keys();
@@ -108,8 +117,6 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         vkpost->post_type = head["post_type"].toString();
         vkpost->text = head["text"].toString();
 
-        //playList.push_back(vkpost->text);
-
         vkpost->comments = head["comments"].toMap()["count"].toInt();
         vkpost->likes = head["likes"].toMap()["count"].toInt();
         vkpost->reposts = head["reposts"].toMap()["count"].toInt();
@@ -121,6 +128,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         vkpost->poll_post = false;
 
         foreach (QVariant attachment, attachments) {
+/**********************************PHOTO***********************************/
             if (attachment.toMap()["type"].toString() == "photo") {
                 //qDebug() << "type: photo";
                 JsonObject jsonPhoto = attachment.toMap()["photo"].toMap();
@@ -149,6 +157,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
 
                 vkpost->photo_post = true;
             }
+/**********************************POLL***********************************/
 /*
             if (attachment.toMap()["type"].toString() == "poll") {
                 qDebug() << "type: poll";
@@ -157,6 +166,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                 vkpost->poll_post = true;
             }
 */
+/**********************************AUDIO***********************************/
             if (attachment.toMap()["type"].toString() == "audio") {
                 //qDebug() << "type: audio";
                 JsonObject jsonAudio = attachment.toMap()["audio"].toMap();
@@ -165,22 +175,45 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                 vkpost->tracks.back().owner_id = jsonAudio["owner_id"].toString();
                 vkpost->tracks.back().artist = jsonAudio["artist"].toString();
                 vkpost->tracks.back().title = jsonAudio["title"].toString();
-
-//                playList.push_back(vkpost->tracks.back().title);
-
                 vkpost->tracks.back().duration = jsonAudio["duration"].toInt();
                 //date...
                 //vkpost->tracks.back().url = jsonAudio["url"].toString();
                 vkpost->audio_post = true;
+                if (vkpost->comments > 0) {
+                    commentAudioComplete = false;
+                    getComments(vkpost->id, "0", "1");
+                    if (commentAudioComplete) {
+                        for (int i = 0; i < audios.size(); ++i) {
+                            vkpost->addNewTrack();
+                            vkpost->tracks.back().id = audios[i].id;
+                            vkpost->tracks.back().owner_id = audios[i].owner_id;
+                            vkpost->tracks.back().artist = audios[i].artist;
+                            vkpost->tracks.back().title = audios[i].title;
+                            vkpost->tracks.back().duration = audios[i].duration;
+                        }
+                    }
+                }
             }
-        }
-        if (vkpost->poll_post && vkpost->audio_post)
-            qDebug() << "WARNING: Post" << vkpost->id << "has poll and audio!(это норма!)";
+/**********************************DOC***********************************/
+            if (attachment.toMap()["type"].toString() == "doc") {
+                //qDebug() << "type: doc";
+                JsonObject jsonDoc = attachment.toMap()["doc"].toMap();
+                vkpost->addNewDoc();
+                vkpost->docs.back().id = jsonDoc["id"].toString();
+                vkpost->docs.back().owner_id = jsonDoc["owner_id"].toString();
+                vkpost->docs.back().title = jsonDoc["title"].toString();
+                vkpost->docs.back().size = jsonDoc["size"].toInt();
+                vkpost->docs.back().ext = jsonDoc["ext"].toString();
+                vkpost->docs.back().url = jsonDoc["url"].toString();
+                vkpost->docs.back().access_key = jsonDoc["access_key"].toString();
+            }
+            delay(500); // ?
 
+        }
         emit vkPostReceived(vkpost);
-        delete vkpost;
+        //delete vkpost;
     }
-    gottenCount = vkposts.size();
+    //gottenCount = vkposts.size();
     //qDebug() << "gotten:" << gottenCount;
     //for (int i = 0; i < gottenCount; i++)
         //vkpostToDb(i);
@@ -189,4 +222,84 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         //delete vkposts.at(i);
 
     //vkposts.clear();
+}
+
+void VkApi::jsonToComment(const JsonObject &result)
+{
+    audios.clear();
+    /*
+        qDebug() << "head begin";
+        QList<QString> keys = head.keys();
+        for (int i = 0; i < keys.size(); i++ )
+           qDebug() << keys[i];
+        qDebug() << "items end";
+    */
+
+    QList<QString> resultkeys = result.keys();
+    if (resultkeys[0] == "error") {
+        qDebug() << "ERROR: access to vk is unsucsessful. return";
+        return;
+    }
+
+    JsonObject jsonObject = result["response"].toMap();
+    JsonArray items = jsonObject["items"].toList();
+
+    if (items.size() == 0) {
+        qDebug() << "ERROR: vk reply has no items. return";
+        scanStop = true;
+        return;
+    }
+
+    for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
+        JsonObject head = items[i].toMap();
+/* репосты?
+        qDebug() << "pre copy";
+        while (head["copy_history"].toList().size() > 0) {
+            i++;
+            head = items[i].toMap();
+        }
+        qDebug() << "post copy";
+*/
+/* здесь можно прочиать комментарий, но пока нет необходимости
+        vkpost->id = head["id"].toString();
+        vkpost->from_id = head["from_id"].toString();
+        vkpost->owner_id = head["owner_id"].toString();
+        vkpost->post_source = head["post_source"].toString();
+        vkpost->date = head["date"].toUInt();
+        vkpost->post_type = head["post_type"].toString();
+        vkpost->text = head["text"].toString();
+
+        vkpost->comments = head["comments"].toMap()["count"].toInt();
+        vkpost->likes = head["likes"].toMap()["count"].toInt();
+        vkpost->reposts = head["reposts"].toMap()["count"].toInt();
+*/
+        if (head["from_id"].toString() != "-60027733")
+            return;
+
+        JsonArray attachments = head["attachments"].toList();
+
+        foreach (QVariant attachment, attachments) {
+            if (attachment.toMap()["type"].toString() == "audio") {
+                JsonObject jsonAudio = attachment.toMap()["audio"].toMap();
+                audios.push_back(audio);
+                audios.back().id = jsonAudio["id"].toString();
+                audios.back().owner_id = jsonAudio["owner_id"].toString();
+                audios.back().artist = jsonAudio["artist"].toString();
+                audios.back().title = jsonAudio["title"].toString();
+                audios.back().duration = jsonAudio["duration"].toInt();
+                //date...
+                //audios.back().url = jsonAudio["url"].toString();
+            } else {
+                qDebug() << "AUDIO ARIMASEN";
+                return;
+            }
+            delay(500);
+        }
+        qDebug() << "MUST BE ONE";
+        if (audios.size() > 0) {
+            commentAudioComplete = true;
+        } else {
+            qDebug() << "SOME TRUBLES";
+        }
+    }
 }

@@ -1,2 +1,2 @@
-INSERT INTO vkgroup(name) VALUES('Сообщество тохо-меломанов');
-INSERT INTO event(name) VALUES('null');
+INSERT INTO vkgroup(name) VALUES('Doujin Music');
+--INSERT INTO event(name) VALUES('null');

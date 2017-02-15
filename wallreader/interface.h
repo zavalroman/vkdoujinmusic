@@ -4,9 +4,6 @@
 #include <QMainWindow>
 #include <QtNetwork/QNetworkReply>
 
-#include "vkpost.h"
-#include "../qt-json/json.h"
-
 namespace Ui {
 class Interface;
 }
@@ -23,16 +20,16 @@ private slots:
 
     void on_requestButton_clicked();
 
+    void on_actionLogin_triggered();
+
 private:
     Ui::Interface *ui;
 
+    bool authorized;
+    QString user_id, token;
+
     bool scanStop, replyParsed;
     QNetworkReply* vkReply;
-
-    Vkpost* vkpost;
-    Firebird* firebird;
-
-    QList<Vkpost*> vkposts;
 
     void delay(int msec);
 };

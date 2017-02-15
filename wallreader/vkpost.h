@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QList>
-#include "../ibpp/tests/C++/firebird.h"
 
 class Vkpost
 {
@@ -36,6 +35,13 @@ public:
         QString url;
     } track;
 
+    struct Doc {
+        QString id, owner_id;
+        QString title;
+        int size;
+        QString ext, url, access_key;
+    } doc;
+
     QString id, from_id, owner_id, post_source;
     unsigned int date;
     QString post_type;
@@ -44,6 +50,7 @@ public:
 
     QList<Photo> photos;
     QList<Audio> tracks;
+    QList<Doc> docs;
 
     int comments, likes, reposts;
 
@@ -51,10 +58,9 @@ public:
 
     void addNewPhoto();
     void addNewTrack();
+    void addNewDoc();
 
 private:
-    Firebird* fb;
-
 
 };
 

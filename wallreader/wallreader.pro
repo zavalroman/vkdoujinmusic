@@ -29,19 +29,32 @@ SOURCES += main.cpp\
     mismatch.cpp \
     vkpost.cpp \
     ../qt-json/json.cpp \
-    ../ibpp/tests/C++/firebird.cpp \
+    ../ibpp/tests/C++/qt-firebird.cpp \
     vkapi.cpp \
-    firecontrol.cpp
+    firecontrol.cpp \
+    ../ibpp/core/all_in_one.cpp
 
 HEADERS  += interface.h \
     login.h \
     mismatch.h \
     vkpost.h \
     ../qt-json/json.h \
-    ../ibpp/tests/C++/firebird.h \
+    ../ibpp/tests/C++/qt-firebird.h \
     vkapi.h \
     firecontrol.h
 
 FORMS    += interface.ui \
     login.ui \
     mismatch.ui
+
+unix: {
+    QMAKE_CXXFLAGS += -DIBPP_LINUX
+    QMAKE_CXXFLAGS += -W -Wall -fPIC
+    QMAKE_CXXFLAGS += -g -DDEBUG
+    LIBS += -lfbclient -lcrypt -lm -ldl -lpthread # dependancies for shared library
+}
+win32: {
+    QMAKE_CXXFLAGS += -DIBPP_WINDOWS
+    DEFINES += IBPP_WINDOWS=value
+    LIBS += Advapi32.lib #thanx for https://blog.cppse.nl/firebird-ibpp-non-unicode-project
+}
