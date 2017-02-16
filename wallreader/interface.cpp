@@ -7,6 +7,8 @@
 
 #include "login.h"
 #include "vkapi.h"
+#include "firecontrol.h"
+#include "vkpost.h"
 
 Interface::Interface(QWidget *parent) :
     QMainWindow(parent),
@@ -47,11 +49,12 @@ void Interface::on_requestButton_clicked()
     QString ownerId = ui->lineOwnerId->text();
     QString domain = ui->lineDomain->text();
 
+    Firecontrol fc;
     VkApi vk;
+    connect(&vk, SIGNAL(vkPostReceived(Vkpost*)), &fc, SLOT(vkpostToDb(Vkpost*)));
     vk.setToken(token);
     vk.setSourceId(ownerId, domain);
     vk.wallGet(cycles, offset, count);
-    qDebug() << "sovcim finish";
 }
 
 void Interface::on_actionLogin_triggered()

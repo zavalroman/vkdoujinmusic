@@ -16,8 +16,8 @@ CREATE TABLE vkgroup
 
 CREATE TABLE vkpost
 (
-	id INTEGER, --uniq post id within the table
-	vk_id VARCHAR(50), --post id within a vk group
+	id INTEGER, --uniq post id in the table
+	vk_id VARCHAR(50), --post id in a vk group
 	vkgroup_id INTEGER,
 	unix_time DECIMAL,
 	post_text VARCHAR(1000),
@@ -73,3 +73,12 @@ CREATE TABLE vkphoto
 	PRIMARY KEY ( id )
 );
 
+CREATE TABLE comments
+(
+	id INTEGER,
+	vkpost_id INTEGER,
+	commentator VARCHAR(20),
+	
+	FOREIGN KEY ( vkpost_id ) REFERENCES vkpost ( id ),
+	PRIMARY KEY ( id )
+);

@@ -56,6 +56,7 @@ public:
 
     bool photo_post, poll_post, audio_post;
 
+    QList<QString> commentators;
     void addNewPhoto();
     void addNewTrack();
     void addNewDoc();

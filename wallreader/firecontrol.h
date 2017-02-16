@@ -12,18 +12,12 @@ class Firecontrol : public QObject
 public:
     explicit Firecontrol(QObject *parent = 0);
 
-    void setFirebird(Firebird* firebird) {
-        fb = firebird;
-    }
-
 signals:
 
 public slots:
     void vkpostToDb(Vkpost*);
 
 private:
-    Firebird* fb;
-
     void textPrepare(QString& text);
 };
 

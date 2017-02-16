@@ -61,10 +61,14 @@ void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
     qDebug() << "finish";
 }
 
-void VkApi::getComments(QString& postId, QString offset, QString count)
+void VkApi::getComments(QString& postId, QString count)
 {
+    if (ownerId[0] != "-"){
+        qDebug() << "ERROR: ownerId is not specified. return";
+        return;
+    }
     replyParsed = false;
-    execute("wall.getComments?owner_id="+ownerId+"&post_id="+postId+"&need_likes=0&offset="+offset+"&count="+count+"&v=5.62&access_token="+token);
+    execute("wall.getComments?owner_id="+ownerId+"&post_id="+postId+"&need_likes=0&offset=0&count="+count+"&v=5.62&access_token="+token);
     while (!replyParsed)
         delay(100);
     jsonToComment(jsonResponse);
@@ -112,6 +116,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         vkpost->id = head["id"].toString();
         vkpost->from_id = head["from_id"].toString();
         vkpost->owner_id = head["owner_id"].toString();
+        ownerId = vkpost->owner_id;                             // NB
         vkpost->post_source = head["post_source"].toString();
         vkpost->date = head["date"].toUInt();
         vkpost->post_type = head["post_type"].toString();
@@ -181,7 +186,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                 vkpost->audio_post = true;
                 if (vkpost->comments > 0) {
                     commentAudioComplete = false;
-                    getComments(vkpost->id, "0", "1");
+                    getComments(vkpost->id, QString(vkpost->comments));
                     if (commentAudioComplete) {
                         for (int i = 0; i < audios.size(); ++i) {
                             vkpost->addNewTrack();
@@ -191,6 +196,8 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                             vkpost->tracks.back().title = audios[i].title;
                             vkpost->tracks.back().duration = audios[i].duration;
                         }
+                        if (commentators.size() > 0)
+                            vkpost->commentators = commentators;
                     }
                 }
             }
@@ -210,7 +217,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
             delay(500); // ?
 
         }
-        emit vkPostReceived(vkpost);
+        emit vkPostReceived(vkpost);    
         //delete vkpost;
     }
     //gottenCount = vkposts.size();
@@ -227,6 +234,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
 void VkApi::jsonToComment(const JsonObject &result)
 {
     audios.clear();
+    commentators.clear();
     /*
         qDebug() << "head begin";
         QList<QString> keys = head.keys();
@@ -237,7 +245,7 @@ void VkApi::jsonToComment(const JsonObject &result)
 
     QList<QString> resultkeys = result.keys();
     if (resultkeys[0] == "error") {
-        qDebug() << "ERROR: access to vk is unsucsessful. return";
+        qDebug() << "ERROR: access to vk is unsuccessful. return";
         return;
     }
 
@@ -263,7 +271,6 @@ void VkApi::jsonToComment(const JsonObject &result)
 /* здесь можно прочиать комментарий, но пока нет необходимости
         vkpost->id = head["id"].toString();
         vkpost->from_id = head["from_id"].toString();
-        vkpost->owner_id = head["owner_id"].toString();
         vkpost->post_source = head["post_source"].toString();
         vkpost->date = head["date"].toUInt();
         vkpost->post_type = head["post_type"].toString();
@@ -273,29 +280,28 @@ void VkApi::jsonToComment(const JsonObject &result)
         vkpost->likes = head["likes"].toMap()["count"].toInt();
         vkpost->reposts = head["reposts"].toMap()["count"].toInt();
 */
-        if (head["from_id"].toString() != "-60027733")
-            return;
-
-        JsonArray attachments = head["attachments"].toList();
-
-        foreach (QVariant attachment, attachments) {
-            if (attachment.toMap()["type"].toString() == "audio") {
-                JsonObject jsonAudio = attachment.toMap()["audio"].toMap();
-                audios.push_back(audio);
-                audios.back().id = jsonAudio["id"].toString();
-                audios.back().owner_id = jsonAudio["owner_id"].toString();
-                audios.back().artist = jsonAudio["artist"].toString();
-                audios.back().title = jsonAudio["title"].toString();
-                audios.back().duration = jsonAudio["duration"].toInt();
-                //date...
-                //audios.back().url = jsonAudio["url"].toString();
-            } else {
-                qDebug() << "AUDIO ARIMASEN";
-                return;
+        if (head["from_id"].toString() != "-60027733") {
+            commentators.push_back(head["from_id"].toString());
+        } else {
+            JsonArray attachments = head["attachments"].toList();
+            foreach (QVariant attachment, attachments) {
+                if (attachment.toMap()["type"].toString() == "audio") {
+                    JsonObject jsonAudio = attachment.toMap()["audio"].toMap();
+                    audios.push_back(audio);
+                    audios.back().id = jsonAudio["id"].toString();
+                    audios.back().owner_id = jsonAudio["owner_id"].toString();
+                    audios.back().artist = jsonAudio["artist"].toString();
+                    audios.back().title = jsonAudio["title"].toString();
+                    audios.back().duration = jsonAudio["duration"].toInt();
+                    //date...
+                    //audios.back().url = jsonAudio["url"].toString();
+                } else {
+                    qDebug() << "AUDIO NOT EXIST";
+                    return;
+                }
+                delay(500);
             }
-            delay(500);
         }
-        qDebug() << "MUST BE ONE";
         if (audios.size() > 0) {
             commentAudioComplete = true;
         } else {

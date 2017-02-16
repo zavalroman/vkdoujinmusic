@@ -51,10 +51,11 @@ private:
     int gottenCount;
 
     QList<Audio> audios;
+    QList<QString> commentators;
 
     void jsonToVkpost(const JsonObject &result);
     void jsonToComment(const JsonObject &result);
-    void getComments(QString& postId, QString offset, QString count);
+    void getComments(QString& postId, QString count);
     void execute(QString parameters);
 };
 
