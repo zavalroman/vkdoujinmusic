@@ -40,7 +40,7 @@ CREATE TABLE vktrack
 	to_id VARCHAR(50), --owner_id
 	artist VARCHAR(100),
 	title VARCHAR(100),
-	duration INTEGER,
+	--duration INTEGER,
 	--unix_time DECIMAL, --iru ka
 	--url VARCHAR(100),
 	--lyrics_id VARCHAR(50),

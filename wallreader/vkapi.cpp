@@ -181,25 +181,11 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                 vkpost->tracks.back().artist = jsonAudio["artist"].toString();
                 vkpost->tracks.back().title = jsonAudio["title"].toString();
                 vkpost->tracks.back().duration = jsonAudio["duration"].toInt();
+                qDebug() << "duration1" << vkpost->tracks.back().duration;
                 //date...
                 //vkpost->tracks.back().url = jsonAudio["url"].toString();
                 vkpost->audio_post = true;
-                if (vkpost->comments > 0) {
-                    commentAudioComplete = false;
-                    getComments(vkpost->id, QString(vkpost->comments));
-                    if (commentAudioComplete) {
-                        for (int i = 0; i < audios.size(); ++i) {
-                            vkpost->addNewTrack();
-                            vkpost->tracks.back().id = audios[i].id;
-                            vkpost->tracks.back().owner_id = audios[i].owner_id;
-                            vkpost->tracks.back().artist = audios[i].artist;
-                            vkpost->tracks.back().title = audios[i].title;
-                            vkpost->tracks.back().duration = audios[i].duration;
-                        }
-                        if (commentators.size() > 0)
-                            vkpost->commentators = commentators;
-                    }
-                }
+
             }
 /**********************************DOC***********************************/
             if (attachment.toMap()["type"].toString() == "doc") {
@@ -216,6 +202,24 @@ void VkApi::jsonToVkpost(const JsonObject &result)
             }
             delay(500); // ?
 
+        }
+/********************************COMMENTS***********************************/
+        if (vkpost->comments > 0) {
+            commentAudioComplete = false;
+            getComments(vkpost->id, QString::number(vkpost->comments));
+            if (commentAudioComplete) {
+                for (int i = 0; i < audios.size(); ++i) {
+                    vkpost->addNewTrack();
+                    vkpost->tracks.back().id = audios[i].id;
+                    vkpost->tracks.back().owner_id = audios[i].owner_id;
+                    vkpost->tracks.back().artist = audios[i].artist;
+                    vkpost->tracks.back().title = audios[i].title;
+                    vkpost->tracks.back().duration = audios[i].duration;
+                }
+            }
+        }
+        if (commentators.size() > 0) {
+            vkpost->commentators = commentators;
         }
         emit vkPostReceived(vkpost);    
         //delete vkpost;
@@ -257,7 +261,7 @@ void VkApi::jsonToComment(const JsonObject &result)
         scanStop = true;
         return;
     }
-
+    qDebug() << "items size" << items.size();
     for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
         JsonObject head = items[i].toMap();
 /* репосты?
@@ -280,7 +284,8 @@ void VkApi::jsonToComment(const JsonObject &result)
         vkpost->likes = head["likes"].toMap()["count"].toInt();
         vkpost->reposts = head["reposts"].toMap()["count"].toInt();
 */
-        if (head["from_id"].toString() != "-60027733") {
+        if (head["from_id"].toString() != ownerId) {
+
             commentators.push_back(head["from_id"].toString());
         } else {
             JsonArray attachments = head["attachments"].toList();
@@ -301,11 +306,12 @@ void VkApi::jsonToComment(const JsonObject &result)
                 }
                 delay(500);
             }
-        }
-        if (audios.size() > 0) {
-            commentAudioComplete = true;
-        } else {
-            qDebug() << "SOME TRUBLES";
-        }
+        }       
+    }
+    qDebug() << "audios size" << audios.size();
+    if (audios.size() > 0) {
+        commentAudioComplete = true;
+    } else {
+        qDebug() << "SOME TRUBLES";
     }
 }

@@ -46,8 +46,8 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
     for (int j = 0; j < vkpost->tracks.size(); j++) {
         textPrepare(vkpost->tracks[j].artist);
         textPrepare(vkpost->tracks[j].title);
-        statement = "INSERT INTO vktrack(vk_id,to_id,artist,title,duration,vkpost_id) VALUES('"+vkpost->tracks[j].id+"','"+vkpost->tracks[j].owner_id+"','"+vkpost->tracks[j].artist +
-                                "','"+vkpost->tracks[j].title+"',"+QString::number(vkpost->tracks[j].duration)+","+QString::number(index.at(0))+")";
+        statement = "INSERT INTO vktrack(vk_id,to_id,artist,title,vkpost_id) VALUES('"+vkpost->tracks[j].id+"','"+vkpost->tracks[j].owner_id+"','"+vkpost->tracks[j].artist +
+                                "','"+vkpost->tracks[j].title+"',"+QString::number(index.at(0))+")";
         fb.query(statement);
     }
     for (int j = 0; j < vkpost->commentators.size(); ++j) {

@@ -50,3 +50,14 @@ BEGIN
 END^
 SET TERM ; ^
 
+CREATE GENERATOR commentsInc;
+
+SET TERM ^ ;
+CREATE TRIGGER commentsInc FOR comments ACTIVE
+BEFORE INSERT POSITION 1
+AS
+BEGIN
+    if (new.ID is null) then
+    new.ID = gen_id (commentsInc, 1);
+END^
+SET TERM ; ^
