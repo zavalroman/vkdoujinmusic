@@ -25,7 +25,7 @@ void VkApi::execute(QString parameters) {
     QNetworkReply* reply = manager->get(QNetworkRequest(vkRequest));
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    qDebug() << "during response";
+    qDebug() << "during response...";
     loop.exec();
 
     bool ok;
@@ -53,11 +53,11 @@ void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
             delay(100);
 
         jsonToVkpost(jsonResponse);
-        delay(2000);
+        delay(500);
 
         offset = QString::number(offset.toInt() + count.toInt());
     }
-    qDebug() << "finish";
+    qDebug() << "wallGet finish";
 }
 
 void VkApi::getComments(QString& postId, QString count)
@@ -71,6 +71,26 @@ void VkApi::getComments(QString& postId, QString count)
     while (!replyParsed)
         delay(100);
     jsonToComment(jsonResponse);
+}
+
+void VkApi::getLikes(QString& postId, QString& itemId)
+{
+    replyParsed = false; // GET LIKES
+    execute("likes.getList?type=post&owner_id="+ownerId+"&post_id="+postId+"&item_id="+itemId+
+            "&filter=likes&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
+    while (!replyParsed)
+        delay(100);
+    jsonToLikes(jsonResponse);
+}
+
+void VkApi::getShared(QString& postId, QString& itemId)
+{
+    replyParsed = false; // GET REPOSTS
+    execute("likes.getList?type=post&owner_id="+ownerId+"&post_id="+postId+"&item_id="+itemId+
+            "&filter=copies&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
+    while (!replyParsed)
+        delay(100);
+    jsonToShared(jsonResponse);
 }
 
 void VkApi::jsonToVkpost(const JsonObject &result)
@@ -227,14 +247,6 @@ void VkApi::jsonToVkpost(const JsonObject &result)
 
 void VkApi::jsonToComment(const JsonObject &result)
 {
-    /*
-        qDebug() << "head begin";
-        QList<QString> keys = head.keys();
-        for (int i = 0; i < keys.size(); i++ )
-           qDebug() << keys[i];
-        qDebug() << "items end";
-    */
-
     QList<QString> resultkeys = result.keys();
     if (resultkeys[0] == "error") {
         qDebug() << "ERROR: access to vk is unsuccessful. return";
@@ -249,18 +261,11 @@ void VkApi::jsonToComment(const JsonObject &result)
         scanStop = true;
         return;
     }
-    qDebug() << "items size" << items.size();
+    bool nonAlbumComment = false;
     for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
         JsonObject head = items[i].toMap();
-/* репосты?
-        qDebug() << "pre copy";
-        while (head["copy_history"].toList().size() > 0) {
-            i++;
-            head = items[i].toMap();
-        }
-        qDebug() << "post copy";
-*/
-/* здесь можно прочиать комментарий, но пока нет необходимости
+
+/*
         vkpost->id = head["id"].toString();
         vkpost->from_id = head["from_id"].toString();
         vkpost->post_source = head["post_source"].toString();
@@ -272,10 +277,10 @@ void VkApi::jsonToComment(const JsonObject &result)
         vkpost->likes = head["likes"].toMap()["count"].toInt();
         vkpost->reposts = head["reposts"].toMap()["count"].toInt();
 */
-        if (head["from_id"].toString() != ownerId) {
-
-            commentators.push_back(head["from_id"].toString());
-        } else {
+        commentators.push_back(head["from_id"].toString());
+        if (head["from_id"].toString() != ownerId)
+            nonAlbumComment = true;
+        if (!nonAlbumComment) {
             JsonArray attachments = head["attachments"].toList();
             foreach (QVariant attachment, attachments) {
                 if (attachment.toMap()["type"].toString() == "audio") {
@@ -288,18 +293,53 @@ void VkApi::jsonToComment(const JsonObject &result)
                     audios.back().duration = jsonAudio["duration"].toInt();
                     //date...
                     //audios.back().url = jsonAudio["url"].toString();
-                } else {
-                    qDebug() << "AUDIO NOT EXIST";
-                    return;
                 }
-                delay(500);
             }
-        }       
+        }
     }
-    qDebug() << "audios size" << audios.size();
-    if (audios.size() > 0) {
+
+    if (audios.size() > 0)
         commentAudioComplete = true;
-    } else {
-        qDebug() << "SOME TRUBLES";
+}
+
+void VkApi::jsonToLikes(const JsonObject &result)
+{
+    QList<QString> resultkeys = result.keys();
+    if (resultkeys[0] == "error") {
+        qDebug() << "ERROR: access to vk is unsuccessful. return";
+        return;
+    }
+
+    JsonObject jsonObject = result["response"].toMap();
+    JsonArray items = jsonObject["items"].toList();
+
+    if (items.size() == 0) {
+        qDebug() << "post has no likes. return";
+        scanStop = true;
+        return;
+    }
+    for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
+        vkpost->whoLikes.push_back(items[i].toString());
+    }
+}
+
+void VkApi::jsonToShared(const JsonObject &result)
+{
+    QList<QString> resultkeys = result.keys();
+    if (resultkeys[0] == "error") {
+        qDebug() << "ERROR: access to vk is unsuccessful. return";
+        return;
+    }
+
+    JsonObject jsonObject = result["response"].toMap();
+    JsonArray items = jsonObject["items"].toList();
+
+    if (items.size() == 0) {
+        qDebug() << "post has no likes. return";
+        scanStop = true;
+        return;
+    }
+    for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
+        vkpost->whoShared.push_back(items[i].toString());
     }
 }

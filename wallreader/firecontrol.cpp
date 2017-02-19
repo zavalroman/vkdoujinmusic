@@ -39,8 +39,8 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
                     "','" + vkpost->photos[0].photo_807 + "','" + vkpost->photos[0].photo_1280 + "','" + vkpost->photos[0].photo_2560 + "'," + QString::number(index.at(0)) + ")";
         fb.query(statement);
     } else {
-        statement = "INSERT INTO vkphoto(vk_id,vkpost_id) VALUES('null',"+QString::number(index.at(0))+")";
-        fb.query(statement);
+        //statement = "INSERT INTO vkphoto(vk_id,vkpost_id) VALUES('null',"+QString::number(index.at(0))+")";
+        //fb.query(statement);
     }
 
     for (int j = 0; j < vkpost->tracks.size(); j++) {

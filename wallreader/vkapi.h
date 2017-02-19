@@ -55,7 +55,11 @@ private:
 
     void jsonToVkpost(const JsonObject &result);
     void jsonToComment(const JsonObject &result);
+    void jsonToLikes(const JsonObject &result);
+    void jsonToShared(const JsonObject &result);
     void getComments(QString& postId, QString count);
+    void getLikes(QString& postId, QString& itemId);
+    void getShared(QString& postId, QString& itemId);
     void execute(QString parameters);
 };
 
