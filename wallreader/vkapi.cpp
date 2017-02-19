@@ -56,7 +56,6 @@ void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
         delay(2000);
 
         offset = QString::number(offset.toInt() + count.toInt());
-        qDebug() << cycles << i;
     }
     qDebug() << "finish";
 }
@@ -76,6 +75,9 @@ void VkApi::getComments(QString& postId, QString count)
 
 void VkApi::jsonToVkpost(const JsonObject &result)
 {
+    audios.clear();
+    commentators.clear();
+
     Vkpost* vkpost;
     qDebug() << "head begin";
     /*
@@ -104,14 +106,12 @@ void VkApi::jsonToVkpost(const JsonObject &result)
     for (int i = 0; i < items.size(); i++) {
         JsonObject head = items[i].toMap();
 
-        qDebug() << "pre copy";
-        while (head["copy_history"].toList().size() > 0) {
+        while (head["copy_history"].toList().size() > 0) { // skip reposts
             i++;
             head = items[i].toMap();
         }
-        qDebug() << "post copy";
 
-        vkpost = new Vkpost();
+        vkpost = new Vkpost(); // will be deleted in firecontrol
 
         vkpost->id = head["id"].toString();
         vkpost->from_id = head["from_id"].toString();
@@ -222,23 +222,11 @@ void VkApi::jsonToVkpost(const JsonObject &result)
             vkpost->commentators = commentators;
         }
         emit vkPostReceived(vkpost);    
-        //delete vkpost;
     }
-    //gottenCount = vkposts.size();
-    //qDebug() << "gotten:" << gottenCount;
-    //for (int i = 0; i < gottenCount; i++)
-        //vkpostToDb(i);
-
-    //for (int i = 0; i < vkposts.size(); i++)
-        //delete vkposts.at(i);
-
-    //vkposts.clear();
 }
 
 void VkApi::jsonToComment(const JsonObject &result)
 {
-    audios.clear();
-    commentators.clear();
     /*
         qDebug() << "head begin";
         QList<QString> keys = head.keys();
