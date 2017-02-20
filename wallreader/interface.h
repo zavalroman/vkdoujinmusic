@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtNetwork/QNetworkReply>
+#include <QStringListModel>
 
 namespace Ui {
 class Interface;
@@ -22,6 +23,8 @@ private slots:
 
     void on_actionLogin_triggered();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::Interface *ui;
 
@@ -30,6 +33,11 @@ private:
 
     bool scanStop, replyParsed;
     QNetworkReply* vkReply;
+
+    QStringList processList;
+    QStringList alarmList;
+    QStringListModel processModel;
+    QStringListModel alarmModel;
 
     void delay(int msec);
 };

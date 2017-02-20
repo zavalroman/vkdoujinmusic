@@ -26,6 +26,12 @@ Interface::Interface(QWidget *parent) :
             //qDebug() << "token from file:" << token;
         }
     }
+
+
+    processModel.setStringList(processList);
+    alarmModel.setStringList(alarmList);
+    ui->processView->setModel(&processModel);
+    ui->alarmView->setModel(&alarmModel);
 }
 
 Interface::~Interface()
@@ -78,4 +84,10 @@ void Interface::on_actionLogin_triggered()
         qDebug() << "login ne ok";
     }
 
+}
+
+void Interface::on_pushButton_clicked()
+{
+    processList.append("New line");
+    processModel.setStringList(processList);
 }

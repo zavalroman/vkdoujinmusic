@@ -73,20 +73,20 @@ void VkApi::getComments(QString& postId, QString count)
     jsonToComment(jsonResponse);
 }
 
-void VkApi::getLikes(QString& postId, QString& itemId)
+void VkApi::getLikes(QString& itemId)
 {
-    replyParsed = false; // GET LIKES
-    execute("likes.getList?type=post&owner_id="+ownerId+"&post_id="+postId+"&item_id="+itemId+
+    replyParsed = false;
+    execute("likes.getList?type=post&owner_id="+ownerId+"&item_id="+itemId+
             "&filter=likes&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
     while (!replyParsed)
         delay(100);
     jsonToLikes(jsonResponse);
 }
 
-void VkApi::getShared(QString& postId, QString& itemId)
+void VkApi::getShares(QString& itemId)
 {
-    replyParsed = false; // GET REPOSTS
-    execute("likes.getList?type=post&owner_id="+ownerId+"&post_id="+postId+"&item_id="+itemId+
+    replyParsed = false;
+    execute("likes.getList?type=post&owner_id="+ownerId+"&item_id="+itemId+
             "&filter=copies&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
     while (!replyParsed)
         delay(100);
@@ -96,6 +96,8 @@ void VkApi::getShared(QString& postId, QString& itemId)
 void VkApi::jsonToVkpost(const JsonObject &result)
 {
     audios.clear();
+    likes.clear();
+    shares.clear();
     commentators.clear();
 
     Vkpost* vkpost;
@@ -241,6 +243,14 @@ void VkApi::jsonToVkpost(const JsonObject &result)
         if (commentators.size() > 0) {
             vkpost->commentators = commentators;
         }
+/*********************************LIKES*************************************/
+        getLikes(vkpost->id);
+        if (likes.size() > 0)
+            vkpost->whoLikes = likes;
+        getShares(vkpost->id);
+        if (shares.size() > 0)
+            vkpost->whoShared = shares;
+
         emit vkPostReceived(vkpost);    
     }
 }
@@ -297,7 +307,6 @@ void VkApi::jsonToComment(const JsonObject &result)
             }
         }
     }
-
     if (audios.size() > 0)
         commentAudioComplete = true;
 }
@@ -318,8 +327,8 @@ void VkApi::jsonToLikes(const JsonObject &result)
         scanStop = true;
         return;
     }
-    for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
-        vkpost->whoLikes.push_back(items[i].toString());
+    for (int i = 0; i < items.size(); i++) {
+        likes.push_back(items[i].toString());
     }
 }
 
@@ -339,7 +348,7 @@ void VkApi::jsonToShared(const JsonObject &result)
         scanStop = true;
         return;
     }
-    for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
-        vkpost->whoShared.push_back(items[i].toString());
+    for (int i = 0; i < items.size(); i++) {
+        shares.push_back(items[i].toString());
     }
 }

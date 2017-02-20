@@ -45,12 +45,13 @@ private:
     bool commentAudioComplete;
 
     QString ownerId, domain, token;
-    //QNetworkReply* response;
     JsonObject jsonResponse;
     JsonArray jsonTracks; // ?
     int gottenCount;
 
     QList<Audio> audios;
+    QList<QString> likes;
+    QList<QString> shares;
     QList<QString> commentators;
 
     void jsonToVkpost(const JsonObject &result);
@@ -58,8 +59,8 @@ private:
     void jsonToLikes(const JsonObject &result);
     void jsonToShared(const JsonObject &result);
     void getComments(QString& postId, QString count);
-    void getLikes(QString& postId, QString& itemId);
-    void getShared(QString& postId, QString& itemId);
+    void getLikes(QString& itemId);
+    void getShares(QString& itemId);
     void execute(QString parameters);
 };
 
