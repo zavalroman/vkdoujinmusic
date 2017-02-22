@@ -27,13 +27,10 @@ public:
     void wallGet(QString& cycles, QString& offset, QString& count);
 
 signals:
-
     void vkPostReceived(Vkpost*);
-    //void replyParsed();
+    void exeption(QString);
 
 public slots:
-
-private slots:
 
 private:
     struct Audio { // for comment's attachment audios

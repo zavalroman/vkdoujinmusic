@@ -19,42 +19,42 @@ void VkApi::delay(int msec) const
 }
 
 void VkApi::execute(QString parameters) {
-    qDebug() << parameters;
     QUrl vkRequest("https://api.vk.com/method/" + parameters);
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     QNetworkReply* reply = manager->get(QNetworkRequest(vkRequest));
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    qDebug() << "during response...";
     loop.exec();
-
-    bool ok;
-    //qDebug() << QString(reply->readAll());
+    bool ok = false;
     jsonResponse = QtJson::parse(QString(reply->readAll()),ok).toMap();
     if (!ok) {
-        qDebug() << "ERROR: reply not parsed";
-    } else {
-        qDebug() << "reply parsed";
-        replyParsed = true;
+        emit exeption("E: reply not parsed ("+parameters+")");
+        return;
     }
+    QList<QString> resultkeys = jsonResponse.keys();
+    if (resultkeys[0] == "error") {
+        emit exeption("E: error received from vk ("+parameters+")");
+        return;
+    }
+    JsonObject jsonObject = jsonResponse["response"].toMap();
+    JsonArray items = jsonObject["items"].toList();
+    if (items.size() == 0) {
+        emit exeption("E: reply has no items ("+parameters+")");
+        return;
+    }
+    replyParsed = true;
 }
 
 void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
 {
-    scanStop = false;
-    replyParsed = true;
     for (int i = 0; i < cycles.toInt(); i++) {
-        if (scanStop) // ?
-            return;
 
         replyParsed = false;
         execute("wall.get?owner_id="+ownerId+"&domain="+domain+"&offset="+offset+"&count="+count+"&filter=all&extended=0&v=5.52&access_token="+token);
-        while (!replyParsed)
-            delay(100);
-
-        jsonToVkpost(jsonResponse);
-        delay(500);
-
+        if (replyParsed) {
+            jsonToVkpost(jsonResponse);
+        }
+        delay(300);
         offset = QString::number(offset.toInt() + count.toInt());
     }
     qDebug() << "wallGet finish";
@@ -63,14 +63,14 @@ void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
 void VkApi::getComments(QString& postId, QString count)
 {
     if (ownerId[0] != "-"){
-        qDebug() << "ERROR: ownerId is not specified. return";
+        emit exeption("E: getComments: ownerId not exist (postId: "+postId+")");
         return;
     }
     replyParsed = false;
     execute("wall.getComments?owner_id="+ownerId+"&post_id="+postId+"&need_likes=0&offset=0&count="+count+"&v=5.62&access_token="+token);
-    while (!replyParsed)
-        delay(100);
-    jsonToComment(jsonResponse);
+    if (replyParsed) {
+        jsonToComment(jsonResponse);
+    }
 }
 
 void VkApi::getLikes(QString& itemId)
@@ -78,9 +78,9 @@ void VkApi::getLikes(QString& itemId)
     replyParsed = false;
     execute("likes.getList?type=post&owner_id="+ownerId+"&item_id="+itemId+
             "&filter=likes&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
-    while (!replyParsed)
-        delay(100);
-    jsonToLikes(jsonResponse);
+    if (replyParsed) {
+        jsonToLikes(jsonResponse);
+    }
 }
 
 void VkApi::getShares(QString& itemId)
@@ -88,9 +88,9 @@ void VkApi::getShares(QString& itemId)
     replyParsed = false;
     execute("likes.getList?type=post&owner_id="+ownerId+"&item_id="+itemId+
             "&filter=copies&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
-    while (!replyParsed)
-        delay(100);
-    jsonToShared(jsonResponse);
+    if (replyParsed) {
+        jsonToShared(jsonResponse);
+    }
 }
 
 void VkApi::jsonToVkpost(const JsonObject &result)
@@ -101,7 +101,6 @@ void VkApi::jsonToVkpost(const JsonObject &result)
     commentators.clear();
 
     Vkpost* vkpost;
-    qDebug() << "head begin";
     /*
         qDebug() << "head begin";
         QList<QString> keys = head.keys();
@@ -109,21 +108,8 @@ void VkApi::jsonToVkpost(const JsonObject &result)
            qDebug() << keys[i];
         qDebug() << "items end";
     */
-
-    QList<QString> resultkeys = result.keys();
-    if (resultkeys[0] == "error") {
-        qDebug() << "ERROR: access to vk is unsucsessful. return";
-        return;
-    }
-
     JsonObject jsonObject = result["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
-
-    if (items.size() == 0) {
-        qDebug() << "ERROR: vk reply has no items. return";
-        scanStop = true;
-        return;
-    }
 
     for (int i = 0; i < items.size(); i++) {
         JsonObject head = items[i].toMap();
@@ -203,7 +189,6 @@ void VkApi::jsonToVkpost(const JsonObject &result)
                 vkpost->tracks.back().artist = jsonAudio["artist"].toString();
                 vkpost->tracks.back().title = jsonAudio["title"].toString();
                 vkpost->tracks.back().duration = jsonAudio["duration"].toInt();
-                qDebug() << "duration1" << vkpost->tracks.back().duration;
                 //date...
                 //vkpost->tracks.back().url = jsonAudio["url"].toString();
                 vkpost->audio_post = true;
@@ -244,12 +229,14 @@ void VkApi::jsonToVkpost(const JsonObject &result)
             vkpost->commentators = commentators;
         }
 /*********************************LIKES*************************************/
-        getLikes(vkpost->id);
-        if (likes.size() > 0)
+        if (vkpost->likes > 0) {
+            getLikes(vkpost->id);
             vkpost->whoLikes = likes;
-        getShares(vkpost->id);
-        if (shares.size() > 0)
+        }
+        if (vkpost->reposts > 0) {
+            getShares(vkpost->id);
             vkpost->whoShared = shares;
+        }
 
         emit vkPostReceived(vkpost);    
     }
@@ -257,20 +244,9 @@ void VkApi::jsonToVkpost(const JsonObject &result)
 
 void VkApi::jsonToComment(const JsonObject &result)
 {
-    QList<QString> resultkeys = result.keys();
-    if (resultkeys[0] == "error") {
-        qDebug() << "ERROR: access to vk is unsuccessful. return";
-        return;
-    }
-
     JsonObject jsonObject = result["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
 
-    if (items.size() == 0) {
-        qDebug() << "ERROR: vk reply has no items. return";
-        scanStop = true;
-        return;
-    }
     bool nonAlbumComment = false;
     for (int i = 0; i < items.size(); i++) { // items size - количество комментариев в ответе, но это не точно
         JsonObject head = items[i].toMap();
@@ -313,20 +289,9 @@ void VkApi::jsonToComment(const JsonObject &result)
 
 void VkApi::jsonToLikes(const JsonObject &result)
 {
-    QList<QString> resultkeys = result.keys();
-    if (resultkeys[0] == "error") {
-        qDebug() << "ERROR: access to vk is unsuccessful. return";
-        return;
-    }
-
     JsonObject jsonObject = result["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
 
-    if (items.size() == 0) {
-        qDebug() << "post has no likes. return";
-        scanStop = true;
-        return;
-    }
     for (int i = 0; i < items.size(); i++) {
         likes.push_back(items[i].toString());
     }
@@ -334,20 +299,9 @@ void VkApi::jsonToLikes(const JsonObject &result)
 
 void VkApi::jsonToShared(const JsonObject &result)
 {
-    QList<QString> resultkeys = result.keys();
-    if (resultkeys[0] == "error") {
-        qDebug() << "ERROR: access to vk is unsuccessful. return";
-        return;
-    }
-
     JsonObject jsonObject = result["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
 
-    if (items.size() == 0) {
-        qDebug() << "post has no likes. return";
-        scanStop = true;
-        return;
-    }
     for (int i = 0; i < items.size(); i++) {
         shares.push_back(items[i].toString());
     }

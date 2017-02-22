@@ -183,37 +183,27 @@
      <string>Request</string>
     </property>
    </widget>
-   <widget class="QListView" name="processView">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>20</y>
-      <width>331</width>
-      <height>161</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QListView" name="alarmView">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>20</y>
-      <width>331</width>
+      <x>220</x>
+      <y>40</y>
+      <width>671</width>
       <height>161</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>200</y>
-      <width>80</width>
-      <height>22</height>
+      <x>220</x>
+      <y>20</y>
+      <width>59</width>
+      <height>14</height>
      </rect>
     </property>
     <property name="text">
-     <string>Hello</string>
+     <string>Exeptions</string>
     </property>
    </widget>
   </widget>

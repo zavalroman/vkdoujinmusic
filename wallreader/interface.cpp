@@ -28,9 +28,7 @@ Interface::Interface(QWidget *parent) :
     }
 
 
-    processModel.setStringList(processList);
     alarmModel.setStringList(alarmList);
-    ui->processView->setModel(&processModel);
     ui->alarmView->setModel(&alarmModel);
 }
 
@@ -57,6 +55,7 @@ void Interface::on_requestButton_clicked()
 
     Firecontrol fc;
     VkApi vk;
+    connect(&vk, SIGNAL(exeption(QString)), this, SLOT(catchExeption(QString)));
     connect(&vk, SIGNAL(vkPostReceived(Vkpost*)), &fc, SLOT(vkpostToDb(Vkpost*)));
     vk.setToken(token);
     vk.setSourceId(ownerId, domain);
@@ -86,8 +85,8 @@ void Interface::on_actionLogin_triggered()
 
 }
 
-void Interface::on_pushButton_clicked()
+void Interface::catchExeption(QString e)
 {
-    processList.append("New line");
-    processModel.setStringList(processList);
+    alarmList.append(e);
+    alarmModel.setStringList(alarmList);
 }

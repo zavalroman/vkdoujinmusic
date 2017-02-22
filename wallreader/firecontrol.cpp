@@ -24,12 +24,18 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
     Firebird fb;
     QList<int> index;
 
+    QString statement = "SELECT id FROM vkgroup WHERE vk_id = '"+vkpost->from_id+"'";
+    fb.query(statement, &index);
+    if (index.size() == 0) {
+        qDebug() << "ERROR: IN DB GROUP NOT EXIST";
+        return;
+    }
     textPrepare(vkpost->text);
-    qDebug() << "insert text" << vkpost->text;
-    QString statement = "INSERT INTO vkpost(vk_id,vkgroup_id,unix_time,post_text,likes,reposts,comments,photo_count,audio_count) "
-                        "VALUES ('"+vkpost->id+"',1,"+QString::number(vkpost->date)+",'"+vkpost->text+"',"+QString::number(vkpost->likes)+","+QString::number(vkpost->reposts)+
+    statement = "INSERT INTO vkpost(vk_id,vkgroup_id,unix_time,post_text,likes,reposts,comments,photo_count,audio_count) "
+                        "VALUES ('"+vkpost->id+"',"+QString::number(index.at(0))+","+QString::number(vkpost->date)+",'"+vkpost->text+"',"+QString::number(vkpost->likes)+","+QString::number(vkpost->reposts)+
                                                   ","+QString::number(vkpost->comments)+","+QString::number(vkpost->photos.size())+","+QString::number(vkpost->tracks.size())+")";
     fb.query(statement);
+    index.clear();
     statement = "SELECT MAX(id) FROM vkpost";
     fb.query(statement,&index);
 
