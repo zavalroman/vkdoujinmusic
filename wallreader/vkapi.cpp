@@ -28,18 +28,18 @@ void VkApi::execute(QString parameters) {
     bool ok = false;
     jsonResponse = QtJson::parse(QString(reply->readAll()),ok).toMap();
     if (!ok) {
-        emit exeption("E: reply not parsed ("+parameters+")");
+        emit message("E: reply not parsed ("+parameters+")");
         return;
     }
     QList<QString> resultkeys = jsonResponse.keys();
     if (resultkeys[0] == "error") {
-        emit exeption("E: error received from vk ("+parameters+")");
+        emit message("E: error received from vk ("+parameters+")");
         return;
     }
     JsonObject jsonObject = jsonResponse["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
     if (items.size() == 0) {
-        emit exeption("E: reply has no items ("+parameters+")");
+        emit message("E: reply has no items ("+parameters+")");
         return;
     }
     replyParsed = true;
@@ -63,7 +63,7 @@ void VkApi::wallGet(QString& cycles, QString& offset, QString& count)
 void VkApi::getComments(QString& postId, QString count)
 {
     if (ownerId[0] != "-"){
-        emit exeption("E: getComments: ownerId not exist (postId: "+postId+")");
+        emit message("E: getComments: ownerId not exist (postId: "+postId+")");
         return;
     }
     replyParsed = false;
@@ -237,7 +237,7 @@ void VkApi::jsonToVkpost(const JsonObject &result)
             getShares(vkpost->id);
             vkpost->whoShared = shares;
         }
-
+        emit message(vkpost->text);
         emit vkPostReceived(vkpost);    
     }
 }

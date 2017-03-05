@@ -35,10 +35,10 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
                         "VALUES ('"+vkpost->id+"',"+QString::number(index.at(0))+","+QString::number(vkpost->date)+",'"+vkpost->text+"',"+QString::number(vkpost->likes)+","+QString::number(vkpost->reposts)+
                                                   ","+QString::number(vkpost->comments)+","+QString::number(vkpost->photos.size())+","+QString::number(vkpost->tracks.size())+")";
     fb.query(statement);
+
     index.clear();
     statement = "SELECT MAX(id) FROM vkpost";
     fb.query(statement,&index);
-
     if (vkpost->photos.size() > 0) {
         statement = "INSERT INTO vkphoto(vk_id,photo_75,photo_130,photo_604,photo_807,photo_1280,photo_2560,vkpost_id) VALUES('"
                 + vkpost->photos[0].id + "','" + vkpost->photos[0].photo_75 + "','" + vkpost->photos[0].photo_130 + "','" + vkpost->photos[0].photo_604 +
@@ -60,5 +60,23 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
         statement = "INSERT INTO comments(vkpost_id,commentator) VALUES("+QString::number(index.at(0))+",'"+vkpost->commentators.at(j)+"')";
         fb.query(statement);
     }
+    for (int j = 0; j < vkpost->docs.size(); ++j) {
+        statement = "INSERT INTO docs(vkpost_id,owner_id,title,size,ext,url,access_key) VALUES("+QString::number(index.at(0))+
+                ",'"+vkpost->docs.at(j).owner_id+"','"+vkpost->docs.at(j).title+"',"+QString::number(vkpost->docs.size())+
+                ",'"+vkpost->docs.at(j).ext+"','"+vkpost->docs.at(j).url+"','"+vkpost->docs.at(j).access_key+"')";
+        fb.query(statement);
+    }
     delete vkpost;
+}
+
+void Firecontrol::downloadAlbum(QString rangeBegin, QString rangeEnd)
+{
+    Firebird fb;
+    QList<int> index;
+    QString statement;
+    if (rangeEnd == "all") {
+        statement = "SELECT MAX(id) FROM docs";
+        fb.query(statement,&index);
+    }
+
 }

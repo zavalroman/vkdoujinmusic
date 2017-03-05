@@ -82,3 +82,19 @@ CREATE TABLE comments
 	FOREIGN KEY ( vkpost_id ) REFERENCES vkpost ( id ),
 	PRIMARY KEY ( id )
 );
+
+CREATE TABLE docs
+(
+	id INTEGER,
+	
+	owner_id VARCHAR(20),
+	title VARCHAR(200),
+	size INTEGER,
+	ext VARCHAR(10),
+	url VARCHAR(200),
+	access_key VARCHAR(50),
+	vkpost_id INTEGER,
+	
+	FOREIGN KEY ( vkpost_id ) REFERENCES vkpost ( id ),
+	PRIMARY KEY ( id )	
+);

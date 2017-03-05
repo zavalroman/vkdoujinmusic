@@ -28,7 +28,7 @@ public:
 
 signals:
     void vkPostReceived(Vkpost*);
-    void exeption(QString);
+    void message(QString);
 
 public slots:
 

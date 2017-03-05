@@ -12,6 +12,8 @@ class Firecontrol : public QObject
 public:
     explicit Firecontrol(QObject *parent = 0);
 
+    void downloadAlbum(QString rangeBegin, QString rangeEnd);
+
 signals:
 
 public slots:

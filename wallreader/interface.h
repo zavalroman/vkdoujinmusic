@@ -18,10 +18,13 @@ public:
     ~Interface();
 
 private slots:
-    void catchExeption(QString);
+    void receiveMessage(QString);
 
     void on_requestButton_clicked();
     void on_actionLogin_triggered();
+    void on_downloadButton_clicked();
+    void on_actionSet_album_s_path_triggered();
+
 
 private:
     Ui::Interface *ui;
@@ -32,8 +35,10 @@ private:
     bool scanStop, replyParsed;
     QNetworkReply* vkReply;
 
-    QStringList alarmList;
-    QStringListModel alarmModel;
+    QStringList processList;
+    QStringListModel processModel;
+
+    QString albumPath;
 
     void delay(int msec);
 };

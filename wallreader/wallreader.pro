@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     ../ibpp/tests/C++/qt-firebird.cpp \
     vkapi.cpp \
     firecontrol.cpp \
-    ../ibpp/core/all_in_one.cpp
+    ../ibpp/core/all_in_one.cpp \
+    setpathdialog.cpp
 
 HEADERS  += interface.h \
     login.h \
@@ -41,11 +42,13 @@ HEADERS  += interface.h \
     ../qt-json/json.h \
     ../ibpp/tests/C++/qt-firebird.h \
     vkapi.h \
-    firecontrol.h
+    firecontrol.h \
+    setpathdialog.h
 
 FORMS    += interface.ui \
     login.ui \
-    mismatch.ui
+    mismatch.ui \
+    setpathdialog.ui
 
 unix: {
     QMAKE_CXXFLAGS += -DIBPP_LINUX

@@ -9,6 +9,8 @@
 #include "vkapi.h"
 #include "firecontrol.h"
 #include "vkpost.h"
+#include "firecontrol.h"
+#include "setpathdialog.h"
 
 Interface::Interface(QWidget *parent) :
     QMainWindow(parent),
@@ -28,8 +30,8 @@ Interface::Interface(QWidget *parent) :
     }
 
 
-    alarmModel.setStringList(alarmList);
-    ui->alarmView->setModel(&alarmModel);
+    processModel.setStringList(processList);
+    ui->processView->setModel(&processModel);
 }
 
 Interface::~Interface()
@@ -39,7 +41,7 @@ Interface::~Interface()
 
 void Interface::delay(int msec)
 {
-    qDebug() << "delay:" << msec;
+    //qDebug() << "delay:" << msec;
     QEventLoop loop;
     QTimer::singleShot(msec, &loop, SLOT(quit()));
     loop.exec();
@@ -55,7 +57,7 @@ void Interface::on_requestButton_clicked()
 
     Firecontrol fc;
     VkApi vk;
-    connect(&vk, SIGNAL(exeption(QString)), this, SLOT(catchExeption(QString)));
+    connect(&vk, SIGNAL(message(QString)), this, SLOT(receiveMessage(QString)));
     connect(&vk, SIGNAL(vkPostReceived(Vkpost*)), &fc, SLOT(vkpostToDb(Vkpost*)));
     vk.setToken(token);
     vk.setSourceId(ownerId, domain);
@@ -85,8 +87,38 @@ void Interface::on_actionLogin_triggered()
 
 }
 
-void Interface::catchExeption(QString e)
+void Interface::receiveMessage(QString m)
 {
-    alarmList.append(e);
-    alarmModel.setStringList(alarmList);
+    processList.append(m);
+    processModel.setStringList(processList);
+    //qDebug() << m;
 }
+
+void Interface::on_downloadButton_clicked()
+{
+    QString line = ui->downloadEdit->text();
+    QString rangeBegin, rangeEnd;
+    Firecontrol fc;
+    if (line.left(3)=="all") {
+        fc.downloadAlbum("0", "all");
+        return;
+    }
+    if (line.contains("..")) {
+       rangeBegin = line.split("..").at(0);
+       rangeEnd = line.split("..").at(1);
+       fc.downloadAlbum(rangeBegin, rangeEnd);
+       return;
+    }
+}
+
+void Interface::on_actionSet_album_s_path_triggered()
+{
+    SetPathDialog setPath;
+    setPath.exec();
+
+    if (setPath.set) {
+        albumPath = setPath.path;
+    }
+
+}
+
