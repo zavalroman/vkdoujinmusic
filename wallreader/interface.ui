@@ -84,28 +84,10 @@
     </layout>
    </widget>
    <widget class="QWidget" name="">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>count</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineCount">
-       <property name="text">
-        <string>1</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
+      <x>11</x>
+      <y>11</y>
       <width>262</width>
       <height>174</height>
      </rect>
@@ -160,6 +142,24 @@
         <widget class="QLineEdit" name="lineOffset">
          <property name="text">
           <string>0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>count</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineCount">
+         <property name="text">
+          <string>1</string>
          </property>
         </widget>
        </item>

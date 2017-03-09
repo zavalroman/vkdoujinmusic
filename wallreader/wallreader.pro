@@ -43,7 +43,8 @@ HEADERS  += interface.h \
     ../ibpp/tests/C++/qt-firebird.h \
     vkapi.h \
     firecontrol.h \
-    setpathdialog.h
+    setpathdialog.h \
+    downloadmanager.h
 
 FORMS    += interface.ui \
     login.ui \

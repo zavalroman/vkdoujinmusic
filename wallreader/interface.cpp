@@ -4,6 +4,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QEventLoop>
 #include <QTimer>
+#include <QMessageBox>
 
 #include "login.h"
 #include "vkapi.h"
@@ -32,6 +33,7 @@ Interface::Interface(QWidget *parent) :
 
     processModel.setStringList(processList);
     ui->processView->setModel(&processModel);
+    albumPath = "";
 }
 
 Interface::~Interface()
@@ -99,6 +101,12 @@ void Interface::on_downloadButton_clicked()
     QString line = ui->downloadEdit->text();
     QString rangeBegin, rangeEnd;
     Firecontrol fc;
+    if (albumPath=="") {
+        QMessageBox errorBox;
+        errorBox.critical(0,"Download error", "Path to save album has not set");
+        errorBox.show();
+        return;
+    }
     if (line.left(3)=="all") {
         fc.downloadAlbum("0", "all");
         return;
@@ -109,6 +117,7 @@ void Interface::on_downloadButton_clicked()
        fc.downloadAlbum(rangeBegin, rangeEnd);
        return;
     }
+    fc.downloadAlbum(line,"");
 }
 
 void Interface::on_actionSet_album_s_path_triggered()

@@ -74,9 +74,36 @@ void Firecontrol::downloadAlbum(QString rangeBegin, QString rangeEnd)
     Firebird fb;
     QList<int> index;
     QString statement;
-    if (rangeEnd == "all") {
-        statement = "SELECT MAX(id) FROM docs";
-        fb.query(statement,&index);
+    QStringList docs;
+
+    if (rangeBegin=="0" && rangeEnd=="all") {
+        statement = "SELECT url FROM docs";
+        fb.query(statement, &docs);
+        foreach (QString url, docs) {
+            QDebug() << url;
+        }
     }
 
+}
+
+void Firecontrol::getDocUrl(QString rangeBegin, QString rangeEnd, QStringList* docUrl)
+{
+    Firebird fb;
+    QString statement;
+
+    if (rangeBegin=="0" && rangeEnd=="all") {
+        statement = "SELECT url FROM docs";
+        fb.query(statement, docUrl);
+        return;
+    }
+    if (rangeEnd=="") {
+        statement = "SELECT url FROM docs WHERE id = " + rangeBegin;
+        fb.query(statement, docUrl);
+        return;
+    }
+    if (rangeBegin != "", rangeEnd != "") {
+        statement = "SELECT url FROM docs WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
+        fb.query(statement, docUrl);
+        return;
+    }
 }

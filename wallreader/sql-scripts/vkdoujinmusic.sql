@@ -86,7 +86,6 @@ CREATE TABLE comments
 CREATE TABLE docs
 (
 	id INTEGER,
-	
 	owner_id VARCHAR(20),
 	title VARCHAR(200),
 	size INTEGER,
