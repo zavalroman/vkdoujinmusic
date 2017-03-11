@@ -18,7 +18,8 @@ void VkApi::delay(int msec) const
     loop.exec();
 }
 
-void VkApi::execute(QString parameters) {
+void VkApi::execute(QString parameters)
+{
     QUrl vkRequest("https://api.vk.com/method/" + parameters);
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     QNetworkReply* reply = manager->get(QNetworkRequest(vkRequest));
@@ -36,12 +37,14 @@ void VkApi::execute(QString parameters) {
         emit message("E: error received from vk ("+parameters+")");
         return;
     }
+    /* does not work with docs.getById
     JsonObject jsonObject = jsonResponse["response"].toMap();
     JsonArray items = jsonObject["items"].toList();
     if (items.size() == 0) {
         emit message("E: reply has no items ("+parameters+")");
-        return;
+        //return;
     }
+    */
     replyParsed = true;
 }
 
@@ -90,6 +93,16 @@ void VkApi::getShares(QString& itemId)
             "&filter=copies&friends_only=0&extended=0&offset=0&count=1000&skip_own=0&v=5.62&access_token="+token);
     if (replyParsed) {
         jsonToShared(jsonResponse);
+    }
+}
+
+void VkApi::getDoc(QString &docs)
+{
+    qDebug() << "getDoc" << docs;
+    replyParsed = false;
+    execute("docs.getById?docs="+docs+"&v=5.62&access_token="+token);
+    if (replyParsed) {
+        jsonToDoc(jsonResponse);
     }
 }
 
@@ -305,4 +318,13 @@ void VkApi::jsonToShared(const JsonObject &result)
     for (int i = 0; i < items.size(); i++) {
         shares.push_back(items[i].toString());
     }
+}
+
+void VkApi::jsonToDoc(const QtJson::JsonObject &result)
+{
+    JsonArray jsonArray = result["response"].toList();
+    JsonObject doc = jsonArray[0].toMap();
+
+    QUrl url = doc["url"].toUrl();
+    emit docUrl(url);
 }

@@ -101,6 +101,11 @@ void Interface::on_downloadButton_clicked()
     QString line = ui->downloadEdit->text();
     QString rangeBegin, rangeEnd;
     Firecontrol fc;
+    VkApi vk;
+    QList<QStringList> docId;
+    connect(&vk, SIGNAL(message(QString)), this, SLOT(receiveMessage(QString)));
+    vk.setToken(token);
+
     if (albumPath=="") {
         QMessageBox errorBox;
         errorBox.critical(0,"Download error", "Path to save album has not set");
@@ -108,16 +113,20 @@ void Interface::on_downloadButton_clicked()
         return;
     }
     if (line.left(3)=="all") {
-        fc.downloadAlbum("0", "all");
-        return;
+        fc.getDocId("0", "all", &docId);
+    } else {
+        if (line.contains("..")) {
+            rangeBegin = line.split("..").at(0);
+            rangeEnd = line.split("..").at(1);
+            fc.getDocId(rangeBegin, rangeEnd, &docId);
+        } else {
+            fc.getDocId(line, "", &docId);
+        }
     }
-    if (line.contains("..")) {
-       rangeBegin = line.split("..").at(0);
-       rangeEnd = line.split("..").at(1);
-       fc.downloadAlbum(rangeBegin, rangeEnd);
-       return;
+    for (int i = 0; i < docId.size(); ++i) {
+        qDebug() << docId[i][0] << docId[i][1];
+        //vk.getDoc();
     }
-    fc.downloadAlbum(line,"");
 }
 
 void Interface::on_actionSet_album_s_path_triggered()

@@ -7,7 +7,7 @@ Login::Login(QWidget *parent) :
     ui(new Ui::Login)
 {
     ui->setupUi(this);
-    ui->webView->load(QUrl("https://oauth.vk.com/authorize?client_id=5534287&scope=audio&redirect_uri=https://oauth.vk.com/blank.html&display=popup&v=5.52&response_type=token"));
+    ui->webView->load(QUrl("https://oauth.vk.com/authorize?client_id=5534287&scope=audio,docs&redirect_uri=https://oauth.vk.com/blank.html&display=popup&v=5.52&response_type=token"));
 
 }
 

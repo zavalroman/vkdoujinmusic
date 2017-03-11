@@ -25,10 +25,11 @@ public:
     }
     void delay(int msec) const;
     void wallGet(QString& cycles, QString& offset, QString& count);
-
+    void getDoc(QString& docs);
 signals:
     void vkPostReceived(Vkpost*);
     void message(QString);
+    void docUrl(QUrl);
 
 public slots:
 
@@ -55,9 +56,11 @@ private:
     void jsonToComment(const JsonObject &result);
     void jsonToLikes(const JsonObject &result);
     void jsonToShared(const JsonObject &result);
+    void jsonToDoc(const JsonObject &result);
     void getComments(QString& postId, QString count);
     void getLikes(QString& itemId);
     void getShares(QString& itemId);
+
     void execute(QString parameters);
 };
 

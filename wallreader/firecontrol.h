@@ -12,7 +12,8 @@ class Firecontrol : public QObject
 public:
     explicit Firecontrol(QObject *parent = 0);
 
-    void getDocUrl(QString rangeBegin, QString rangeEnd, QStringList* docUrl);
+    void getDocId(QString rangeBegin, QString rangeEnd, QList<QStringList> *docId);
+
 signals:
 
 public slots:

@@ -201,7 +201,7 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
         QCoreApplication::instance()->quit();
 
 }
-
+/*
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -213,3 +213,4 @@ int main(int argc, char **argv)
 }
 
 #include "main.moc"
+*/

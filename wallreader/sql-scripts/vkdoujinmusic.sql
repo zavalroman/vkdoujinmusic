@@ -83,14 +83,15 @@ CREATE TABLE comments
 	PRIMARY KEY ( id )
 );
 
-CREATE TABLE docs
+CREATE TABLE vkdoc
 (
 	id INTEGER,
+	vk_id VARCHAR(20),
 	owner_id VARCHAR(20),
 	title VARCHAR(200),
 	size INTEGER,
 	ext VARCHAR(10),
-	url VARCHAR(200),
+	--url VARCHAR(200),
 	access_key VARCHAR(50),
 	vkpost_id INTEGER,
 	

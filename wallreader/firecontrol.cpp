@@ -61,14 +61,14 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
         fb.query(statement);
     }
     for (int j = 0; j < vkpost->docs.size(); ++j) {
-        statement = "INSERT INTO docs(vkpost_id,owner_id,title,size,ext,url,access_key) VALUES("+QString::number(index.at(0))+
-                ",'"+vkpost->docs.at(j).owner_id+"','"+vkpost->docs.at(j).title+"',"+QString::number(vkpost->docs.size())+
+        statement = "INSERT INTO docs(vkpost_id,vk_id,owner_id,title,size,ext,url,access_key) VALUES("+QString::number(index.at(0))+
+                ",'"+vkpost->docs.at(j).id+"','"+vkpost->docs.at(j).owner_id+"','"+vkpost->docs.at(j).title+"',"+QString::number(vkpost->docs.size())+
                 ",'"+vkpost->docs.at(j).ext+"','"+vkpost->docs.at(j).url+"','"+vkpost->docs.at(j).access_key+"')";
         fb.query(statement);
     }
     delete vkpost;
 }
-
+/*
 void Firecontrol::downloadAlbum(QString rangeBegin, QString rangeEnd)
 {
     Firebird fb;
@@ -85,25 +85,27 @@ void Firecontrol::downloadAlbum(QString rangeBegin, QString rangeEnd)
     }
 
 }
+*/
 
-void Firecontrol::getDocUrl(QString rangeBegin, QString rangeEnd, QStringList* docUrl)
+void Firecontrol::getDocId(QString rangeBegin, QString rangeEnd, QList<QStringList>* docId)
 {
     Firebird fb;
     QString statement;
 
     if (rangeBegin=="0" && rangeEnd=="all") {
-        statement = "SELECT url FROM docs";
-        fb.query(statement, docUrl);
+        statement = "SELECT vk_id,owner_id FROM vkdoc";
+        fb.query(statement, docId);
         return;
     }
     if (rangeEnd=="") {
-        statement = "SELECT url FROM docs WHERE id = " + rangeBegin;
-        fb.query(statement, docUrl);
+        statement = "SELECT vk_id,owner_id FROM vkdoc WHERE id = " + rangeBegin;
+        fb.query(statement, docId);
         return;
     }
     if (rangeBegin != "", rangeEnd != "") {
-        statement = "SELECT url FROM docs WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
+        statement = "SELECT vk_id,owner_id FROM vkdoc WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
         fb.query(statement, docUrl);
         return;
     }
 }
+

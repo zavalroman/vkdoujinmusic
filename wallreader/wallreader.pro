@@ -44,7 +44,8 @@ HEADERS  += interface.h \
     vkapi.h \
     firecontrol.h \
     setpathdialog.h \
-    downloadmanager.h
+    downloadmanager.h \
+    downloader.h
 
 FORMS    += interface.ui \
     login.ui \

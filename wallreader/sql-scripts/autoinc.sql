@@ -61,3 +61,15 @@ BEGIN
     new.ID = gen_id (commentsInc, 1);
 END^
 SET TERM ; ^
+
+CREATE GENERATOR vkdocInc;
+
+SET TERM ^ ;
+CREATE TRIGGER vkdocInc FOR vkdoc ACTIVE
+BEFORE INSERT POSITION 1
+AS
+BEGIN
+    if (new.ID is null) then
+    new.ID = gen_id (vkdocInc, 1);
+END^
+SET TERM ; ^
