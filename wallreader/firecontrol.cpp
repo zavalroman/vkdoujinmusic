@@ -33,7 +33,7 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
     textPrepare(vkpost->text);
     statement = "INSERT INTO vkpost(vk_id,vkgroup_id,unix_time,post_text,likes,reposts,comments,photo_count,audio_count) "
                         "VALUES ('"+vkpost->id+"',"+QString::number(index.at(0))+","+QString::number(vkpost->date)+",'"+vkpost->text+"',"+QString::number(vkpost->likes)+","+QString::number(vkpost->reposts)+
-                                                  ","+QString::number(vkpost->comments)+","+QString::number(vkpost->photos.size())+","+QString::number(vkpost->tracks.size())+")";
+                        ","+QString::number(vkpost->comments)+","+QString::number(vkpost->photos.size())+","+QString::number(vkpost->tracks.size())+")";
     fb.query(statement);
 
     index.clear();
@@ -61,9 +61,9 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
         fb.query(statement);
     }
     for (int j = 0; j < vkpost->docs.size(); ++j) {
-        statement = "INSERT INTO docs(vkpost_id,vk_id,owner_id,title,size,ext,url,access_key) VALUES("+QString::number(index.at(0))+
+        statement = "INSERT INTO vkdoc(vkpost_id,vk_id,owner_id,title,size,ext,access_key) VALUES("+QString::number(index.at(0))+
                 ",'"+vkpost->docs.at(j).id+"','"+vkpost->docs.at(j).owner_id+"','"+vkpost->docs.at(j).title+"',"+QString::number(vkpost->docs.size())+
-                ",'"+vkpost->docs.at(j).ext+"','"+vkpost->docs.at(j).url+"','"+vkpost->docs.at(j).access_key+"')";
+                ",'"+vkpost->docs.at(j).ext+"','"+vkpost->docs.at(j).access_key+"')";
         fb.query(statement);
     }
     delete vkpost;
@@ -104,7 +104,7 @@ void Firecontrol::getDocId(QString rangeBegin, QString rangeEnd, QList<QStringLi
     }
     if (rangeBegin != "", rangeEnd != "") {
         statement = "SELECT vk_id,owner_id FROM vkdoc WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
-        fb.query(statement, docUrl);
+        fb.query(statement, docId);
         return;
     }
 }

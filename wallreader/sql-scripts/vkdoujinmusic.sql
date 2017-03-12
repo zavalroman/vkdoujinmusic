@@ -38,8 +38,8 @@ CREATE TABLE vktrack
 	vk_id VARCHAR(50),
 	--from_id VARCHAR(50),
 	to_id VARCHAR(50), --owner_id
-	artist VARCHAR(100),
-	title VARCHAR(100),
+	artist VARCHAR(200),
+	title VARCHAR(300),
 	--duration INTEGER,
 	--unix_time DECIMAL, --iru ka
 	--url VARCHAR(100),

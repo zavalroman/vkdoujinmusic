@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     vkapi.cpp \
     firecontrol.cpp \
     ../ibpp/core/all_in_one.cpp \
-    setpathdialog.cpp
+    setpathdialog.cpp \
+    downloader.cpp
 
 HEADERS  += interface.h \
     login.h \
@@ -44,7 +45,6 @@ HEADERS  += interface.h \
     vkapi.h \
     firecontrol.h \
     setpathdialog.h \
-    downloadmanager.h \
     downloader.h
 
 FORMS    += interface.ui \

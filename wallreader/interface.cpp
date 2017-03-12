@@ -10,8 +10,8 @@
 #include "vkapi.h"
 #include "firecontrol.h"
 #include "vkpost.h"
-#include "firecontrol.h"
 #include "setpathdialog.h"
+#include "downloader.h"
 
 Interface::Interface(QWidget *parent) :
     QMainWindow(parent),
@@ -43,7 +43,7 @@ Interface::~Interface()
 
 void Interface::delay(int msec)
 {
-    //qDebug() << "delay:" << msec;
+    qDebug() << "delay:" << msec;
     QEventLoop loop;
     QTimer::singleShot(msec, &loop, SLOT(quit()));
     loop.exec();
@@ -110,7 +110,7 @@ void Interface::on_downloadButton_clicked()
         QMessageBox errorBox;
         errorBox.critical(0,"Download error", "Path to save album has not set");
         errorBox.show();
-        return;
+        //return;
     }
     if (line.left(3)=="all") {
         fc.getDocId("0", "all", &docId);
@@ -123,10 +123,23 @@ void Interface::on_downloadButton_clicked()
             fc.getDocId(line, "", &docId);
         }
     }
+    DownloadManager dl;
+    connect(&vk, SIGNAL(docUrl(QUrl)), &dl, SLOT(execute(QUrl)));
+    connect(&dl, SIGNAL(finished()), this, SLOT(dlPauseBreak()));
+
     for (int i = 0; i < docId.size(); ++i) {
+        downloadFinished = false;
         qDebug() << docId[i][0] << docId[i][1];
-        //vk.getDoc();
+        QString id = docId[i][1]+"_"+docId[i][0];
+        vk.getDoc(id);
+        while (!downloadFinished)
+            delay(5000);
     }
+}
+
+void Interface::dlPauseBreak()
+{
+    downloadFinished = true;
 }
 
 void Interface::on_actionSet_album_s_path_triggered()
@@ -139,4 +152,6 @@ void Interface::on_actionSet_album_s_path_triggered()
     }
 
 }
+
+
 

@@ -19,6 +19,7 @@ public:
 
 private slots:
     void receiveMessage(QString);
+    void dlPauseBreak();
 
     void on_requestButton_clicked();
     void on_actionLogin_triggered();
@@ -39,6 +40,7 @@ private:
     QStringListModel processModel;
 
     QString albumPath;
+    bool downloadFinished;
 
     void delay(int msec);
 };
