@@ -20,6 +20,7 @@ public:
 private slots:
     void receiveMessage(QString);
     void dlPauseBreak();
+    void setDownloadProgress(int);
 
     void on_requestButton_clicked();
     void on_actionLogin_triggered();
@@ -43,6 +44,7 @@ private:
     bool downloadFinished;
 
     void delay(int msec);
+
 };
 
 #endif // INTERFACE_H

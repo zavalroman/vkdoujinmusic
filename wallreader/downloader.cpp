@@ -11,12 +11,20 @@ void DownloadManager::doDownload(const QUrl &url)
 {
     QNetworkRequest request(url);
     QNetworkReply *reply = manager.get(request);
+    connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(progressPercent(qint64,qint64)));
 
 #ifndef QT_NO_SSL
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
 #endif
 
     //currentDownloads.append(reply);
+}
+
+void DownloadManager::progressPercent(qint64 bytesReceived, qint64 bytesTotal)
+{
+    qDebug() << bytesReceived << bytesTotal;
+    int percent = int((bytesTotal/bytesReceived)*100);
+    emit progress(percent);
 }
 
 QString DownloadManager::saveFileName(const QUrl &url)
@@ -42,7 +50,7 @@ QString DownloadManager::saveFileName(const QUrl &url)
 
 bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)
 {
-    QFile file(filename);
+    QFile file(savePath+filename);
     if (!file.open(QIODevice::WriteOnly)) {
         fprintf(stderr, "Could not open %s for writing: %s\n",
                 qPrintable(filename),

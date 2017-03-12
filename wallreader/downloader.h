@@ -82,14 +82,22 @@ public:
     void doDownload(const QUrl &url);
     QString saveFileName(const QUrl &url);
     bool saveToDisk(const QString &filename, QIODevice *data);
+    void setSavePath(QString path) {
+        savePath = path;
+    }
 
 signals:
     void finished();
+    void progress(int);
 
 public slots:
     void execute(QUrl url);
     void downloadFinished(QNetworkReply *reply);
     void sslErrors(const QList<QSslError> &errors);
+    void progressPercent(qint64, qint64);
+
+private:
+    QString savePath;
 };
 
 

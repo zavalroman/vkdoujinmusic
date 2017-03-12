@@ -108,9 +108,9 @@ void Interface::on_downloadButton_clicked()
 
     if (albumPath=="") {
         QMessageBox errorBox;
-        errorBox.critical(0,"Download error", "Path to save album has not set");
+        errorBox.critical(0,"Download error", "Path does not set");
         errorBox.show();
-        //return;
+        return;
     }
     if (line.left(3)=="all") {
         fc.getDocId("0", "all", &docId);
@@ -124,9 +124,10 @@ void Interface::on_downloadButton_clicked()
         }
     }
     DownloadManager dl;
+    dl.setSavePath(albumPath);
     connect(&vk, SIGNAL(docUrl(QUrl)), &dl, SLOT(execute(QUrl)));
     connect(&dl, SIGNAL(finished()), this, SLOT(dlPauseBreak()));
-
+    connect(&dl, SIGNAL(progress(int)), this, SLOT(setDownloadProgress(int)));
     for (int i = 0; i < docId.size(); ++i) {
         downloadFinished = false;
         qDebug() << docId[i][0] << docId[i][1];
@@ -140,6 +141,12 @@ void Interface::on_downloadButton_clicked()
 void Interface::dlPauseBreak()
 {
     downloadFinished = true;
+}
+
+void Interface::setDownloadProgress(int percent)
+{
+    //qDebug() << percent;
+    ui->progressBar->setValue(percent);
 }
 
 void Interface::on_actionSet_album_s_path_triggered()
