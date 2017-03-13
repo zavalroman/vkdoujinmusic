@@ -43,7 +43,7 @@ Interface::~Interface()
 
 void Interface::delay(int msec)
 {
-    qDebug() << "delay:" << msec;
+    //qDebug() << "delay:" << msec;
     QEventLoop loop;
     QTimer::singleShot(msec, &loop, SLOT(quit()));
     loop.exec();
@@ -128,6 +128,8 @@ void Interface::on_downloadButton_clicked()
     connect(&vk, SIGNAL(docUrl(QUrl)), &dl, SLOT(execute(QUrl)));
     connect(&dl, SIGNAL(finished()), this, SLOT(dlPauseBreak()));
     connect(&dl, SIGNAL(progress(int)), this, SLOT(setDownloadProgress(int)));
+    ui->dlFilesCountLabel->setText("0/"+QString::number(docId.size()));
+    downloadStop = false;
     for (int i = 0; i < docId.size(); ++i) {
         downloadFinished = false;
         qDebug() << docId[i][0] << docId[i][1];
@@ -135,6 +137,9 @@ void Interface::on_downloadButton_clicked()
         vk.getDoc(id);
         while (!downloadFinished)
             delay(5000);
+        ui->dlFilesCountLabel->setText(QString::number(i+1)+"/"+QString::number(docId.size()));
+        if (downloadStop)
+            break;
     }
 }
 
@@ -162,3 +167,8 @@ void Interface::on_actionSet_album_s_path_triggered()
 
 
 
+
+void Interface::on_stopButton_clicked()
+{
+    downloadStop = true;
+}

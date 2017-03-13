@@ -28,6 +28,8 @@ private slots:
     void on_actionSet_album_s_path_triggered();
 
 
+    void on_stopButton_clicked();
+
 private:
     Ui::Interface *ui;
 
@@ -41,7 +43,7 @@ private:
     QStringListModel processModel;
 
     QString albumPath;
-    bool downloadFinished;
+    bool downloadFinished, downloadStop;
 
     void delay(int msec);
 

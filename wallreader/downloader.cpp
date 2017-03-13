@@ -22,8 +22,7 @@ void DownloadManager::doDownload(const QUrl &url)
 
 void DownloadManager::progressPercent(qint64 bytesReceived, qint64 bytesTotal)
 {
-    qDebug() << bytesReceived << bytesTotal;
-    int percent = int((bytesTotal/bytesReceived)*100);
+    int percent = int(((float)bytesReceived/(float)bytesTotal)*100);
     emit progress(percent);
 }
 
