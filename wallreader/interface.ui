@@ -180,7 +180,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Download albums (exaples:all,0,0..5,7..23)</string>
+     <string>Download (ex: &quot;1&quot; or &quot;1..6&quot; or &quot;all&quot;)</string>
     </property>
    </widget>
    <widget class="QWidget" name="">

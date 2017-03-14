@@ -98,20 +98,25 @@ void Interface::receiveMessage(QString m)
 
 void Interface::on_downloadButton_clicked()
 {
+    ui->downloadButton->setEnabled(false);
+    processList.clear();
+    processModel.setStringList(processList);
     QString line = ui->downloadEdit->text();
     QString rangeBegin, rangeEnd;
     Firecontrol fc;
     VkApi vk;
     QList<QStringList> docId;
     connect(&vk, SIGNAL(message(QString)), this, SLOT(receiveMessage(QString)));
+    connect(this, SIGNAL(message(QString)), this, SLOT(receiveMessage(QString)));
     vk.setToken(token);
-
+/*
     if (albumPath=="") {
         QMessageBox errorBox;
         errorBox.critical(0,"Download error", "Path does not set");
         errorBox.show();
         return;
     }
+*/
     if (line.left(3)=="all") {
         fc.getDocId("0", "all", &docId);
     } else {
@@ -132,7 +137,7 @@ void Interface::on_downloadButton_clicked()
     downloadStop = false;
     for (int i = 0; i < docId.size(); ++i) {
         downloadFinished = false;
-        qDebug() << docId[i][0] << docId[i][1];
+        emit message(docId[i][2]);
         QString id = docId[i][1]+"_"+docId[i][0];
         vk.getDoc(id);
         while (!downloadFinished)
@@ -141,6 +146,7 @@ void Interface::on_downloadButton_clicked()
         if (downloadStop)
             break;
     }
+    ui->downloadButton->setEnabled(true);
 }
 
 void Interface::dlPauseBreak()
@@ -164,9 +170,6 @@ void Interface::on_actionSet_album_s_path_triggered()
     }
 
 }
-
-
-
 
 void Interface::on_stopButton_clicked()
 {

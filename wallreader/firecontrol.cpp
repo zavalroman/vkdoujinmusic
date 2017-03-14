@@ -7,15 +7,15 @@ Firecontrol::Firecontrol(QObject *parent) : QObject(parent)
 
 }
 
-void Firecontrol::textPrepare(QString &text)
+void Firecontrol::textPrepare(QString *text)
 {
-    for ( int i = 0; i < text.size(); i++) {
-        if (text[i] == 39) {
-            text.insert(i, 39); //экранируем апостроф
+    for ( int i = 0; i < text->size(); i++) {
+        if (text->at(i) == 39) {
+            text->insert(i, 39); //экранируем апостроф
             i++;
         }
-        if (text[i] == 10)
-            text.replace(i,1," "); //заменяем перенос строки пробелом
+        if (text->at(i) == 10)
+            text->replace(i,1," "); //заменяем перенос строки пробелом
     }
 }
 
@@ -30,7 +30,8 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
         qDebug() << "ERROR: IN DB GROUP NOT EXIST";
         return;
     }
-    textPrepare(vkpost->text);
+    textPrepare(&vkpost->text);
+    qDebug() << vkpost->text;
     statement = "INSERT INTO vkpost(vk_id,vkgroup_id,unix_time,post_text,likes,reposts,comments,photo_count,audio_count) "
                         "VALUES ('"+vkpost->id+"',"+QString::number(index.at(0))+","+QString::number(vkpost->date)+",'"+vkpost->text+"',"+QString::number(vkpost->likes)+","+QString::number(vkpost->reposts)+
                         ","+QString::number(vkpost->comments)+","+QString::number(vkpost->photos.size())+","+QString::number(vkpost->tracks.size())+")";
@@ -50,8 +51,8 @@ void Firecontrol::vkpostToDb(Vkpost* vkpost)
     }
 
     for (int j = 0; j < vkpost->tracks.size(); j++) {
-        textPrepare(vkpost->tracks[j].artist);
-        textPrepare(vkpost->tracks[j].title);
+        textPrepare(&vkpost->tracks[j].artist);
+        textPrepare(&vkpost->tracks[j].title);
         statement = "INSERT INTO vktrack(vk_id,to_id,artist,title,vkpost_id) VALUES('"+vkpost->tracks[j].id+"','"+vkpost->tracks[j].owner_id+"','"+vkpost->tracks[j].artist +
                                 "','"+vkpost->tracks[j].title+"',"+QString::number(index.at(0))+")";
         fb.query(statement);
@@ -93,17 +94,17 @@ void Firecontrol::getDocId(QString rangeBegin, QString rangeEnd, QList<QStringLi
     QString statement;
 
     if (rangeBegin=="0" && rangeEnd=="all") {
-        statement = "SELECT vk_id,owner_id FROM vkdoc";
+        statement = "SELECT vk_id,owner_id,title FROM vkdoc";
         fb.query(statement, docId);
         return;
     }
     if (rangeEnd=="") {
-        statement = "SELECT vk_id,owner_id FROM vkdoc WHERE id = " + rangeBegin;
+        statement = "SELECT vk_id,owner_id,title FROM vkdoc WHERE id = " + rangeBegin;
         fb.query(statement, docId);
         return;
     }
     if (rangeBegin != "", rangeEnd != "") {
-        statement = "SELECT vk_id,owner_id FROM vkdoc WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
+        statement = "SELECT vk_id,owner_id,title FROM vkdoc WHERE id BETWEEN "+rangeBegin+" AND "+rangeEnd;
         fb.query(statement, docId);
         return;
     }

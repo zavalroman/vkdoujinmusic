@@ -20,7 +20,7 @@ public slots:
     void vkpostToDb(Vkpost*);
 
 private:
-    void textPrepare(QString& text);
+    void textPrepare(QString *text);
 };
 
 #endif // FIRECONTROL_H

@@ -17,6 +17,9 @@ public:
     explicit Interface(QWidget *parent = 0);
     ~Interface();
 
+signals:
+    void message(QString);
+
 private slots:
     void receiveMessage(QString);
     void dlPauseBreak();
